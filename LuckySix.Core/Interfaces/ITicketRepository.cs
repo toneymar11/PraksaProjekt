@@ -9,5 +9,8 @@ namespace LuckySix.Core.Interfaces
   public interface ITicketRepository
   {
     Task<Ticket> CreateTicket(Ticket ticket);
+    Task<Ticket> GetTicket(int ticketId);
+
+    string IsUserWinTicket(string selectedNum, string DrawnNum);
   }
 }

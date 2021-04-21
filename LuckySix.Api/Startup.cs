@@ -38,6 +38,7 @@ namespace LuckySix.Api
       services.AddScoped<IUserValidation, UserValidation>();
       services.AddScoped<ITicketRepository, TicketRepository>();
       services.AddScoped<IRoundRepository, RoundRepository>();
+      services.AddScoped<ITicketValidation, TicketValidation>();
 
       // AUTO MAPPER
       services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
