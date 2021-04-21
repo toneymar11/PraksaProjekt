@@ -5,6 +5,7 @@
 
 ## DATABASE
 DatabaseConnection.cs
+
 # User-specific files
 *.rsuser
 *.suo
