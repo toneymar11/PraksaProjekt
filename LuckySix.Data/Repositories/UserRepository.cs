@@ -56,10 +56,10 @@ namespace LuckySix.Data.Repositories
       return user;
     }
 
-    public bool IsUserExists(string username)
+    public async Task<bool> IsUserExists(string username)
     {
       SqlCommand cmd = new SqlCommand("CheckUsername", sql) { CommandType = CommandType.StoredProcedure };
-      sql.Open();
+      await sql.OpenAsync();
       //INPUT PARAMETER
       SqlParameter Username = new SqlParameter("@pusername", SqlDbType.VarChar) { Value = username };
 
@@ -70,9 +70,9 @@ namespace LuckySix.Data.Repositories
       cmd.Parameters.Add(Username);
       cmd.Parameters.Add(responseMessage);
 
-      cmd.ExecuteNonQuery();
+      await cmd.ExecuteNonQueryAsync();
 
-      sql.Close();
+      await sql.CloseAsync();
 
       return (!responseMessage.Value.ToString().Equals("Success"));
 
@@ -82,7 +82,7 @@ namespace LuckySix.Data.Repositories
     public async Task<User> RegisterUser(User user)
     {
 
-      if (IsUserExists(user.Username)) return null;
+      if (await IsUserExists(user.Username)) return null;
 
       SqlCommand cmd = new SqlCommand("RegisterUser", sql) { CommandType = CommandType.StoredProcedure };
 
@@ -161,12 +161,12 @@ namespace LuckySix.Data.Repositories
       return await GetUser(idUser);
     }
 
-    public bool MakeADeposit(decimal balance, int idUser)
+    public async Task<bool> MakeADeposit(decimal balance, int idUser)
     {
       
       SqlCommand cmd = new SqlCommand("MakeADeposit", sql) { CommandType = CommandType.StoredProcedure };
 
-      sql.Open();
+      await sql.OpenAsync();
 
       // INPUT PARAMETERS
       SqlParameter userBalance = new SqlParameter("@pbalance", SqlDbType.Decimal) { Value = balance };
@@ -180,8 +180,8 @@ namespace LuckySix.Data.Repositories
       cmd.Parameters.Add(userId);
       cmd.Parameters.Add(responseMessage);
 
-      cmd.ExecuteNonQuery();
-      sql.Close();
+      await cmd.ExecuteNonQueryAsync();
+      await sql.CloseAsync();
 
       if (!responseMessage.Value.ToString().Equals("Success"))
       {

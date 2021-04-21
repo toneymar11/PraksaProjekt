@@ -8,8 +8,10 @@ namespace LuckySix.Core.Interfaces
 {
   public interface IRoundRepository
   {
-    Task<Round> GetRound(int idRound);
+    Task<Round> GetReadyRound();
 
-    bool IsRoundExists(int idRound);
+    Task<Round> GetRunningRound();
+
+    
   }
 }

@@ -13,7 +13,7 @@ namespace LuckySix.Core.Interfaces
     Task<User> GetUser(int userId);
     Task<User> UpdateUser(User user, int idUser);
 
-    bool MakeADeposit(decimal balance, int idUser);
-    bool IsUserExists(string username);
+    Task<bool> MakeADeposit(decimal balance, int idUser);
+    Task<bool> IsUserExists(string username);
   }
 }

@@ -62,11 +62,11 @@ namespace LuckySix.Data.Repositories
 
     }
 
-    public void SaveToken(int idUser, string token)
+    public async Task SaveToken(int idUser, string token)
     {
       SqlCommand cmd = new SqlCommand("SavingToken", sql) { CommandType = CommandType.StoredProcedure };
 
-      sql.Open();
+      await sql.OpenAsync();
 
       // INPUT PARAMETERS
       SqlParameter userId = new SqlParameter("@pUserId", SqlDbType.Int) { Value = idUser };
@@ -77,10 +77,10 @@ namespace LuckySix.Data.Repositories
       cmd.Parameters.Add(userToken);
 
 
-      cmd.ExecuteNonQuery();
+      await cmd.ExecuteNonQueryAsync();
 
 
-      sql.Close();
+      await sql.CloseAsync();
     }
 
     public async Task<User> IsTokenValid(int userId, string token)
@@ -110,18 +110,19 @@ namespace LuckySix.Data.Repositories
       }
       await reader.CloseAsync();
 
-      sql.Close();
+      await sql.CloseAsync();
+
 
       if (!responseMessage.Value.ToString().Equals("Success")) return null;
 
       return user;
     }
 
-    public bool Logout(int userId, string token)
+    public async Task<bool> Logout(int userId, string token)
     {
       SqlCommand cmd = new SqlCommand("DeleteToken", sql) { CommandType = CommandType.StoredProcedure };
 
-      sql.OpenAsync();
+      await sql.OpenAsync();
 
       // INPUT PARAMETERS
       SqlParameter idUser = new SqlParameter("@pidUser", SqlDbType.Int) { Value = userId };
@@ -135,9 +136,9 @@ namespace LuckySix.Data.Repositories
       cmd.Parameters.Add(userToken);
       cmd.Parameters.Add(responseMessage);
 
-      cmd.ExecuteNonQuery();
+      await cmd.ExecuteNonQueryAsync();
 
-      sql.CloseAsync();
+      await sql .CloseAsync();
 
       if (!responseMessage.Value.ToString().Equals("Success"))
       {

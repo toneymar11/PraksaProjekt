@@ -30,6 +30,10 @@ namespace LuckySix.Api.Controllers
     [HttpGet("{userId}", Name = "GetUser")]
     public async Task<IActionResult> GetUser([FromRoute] int userId)
     {
+      if (!(await IsUserLogged())) return Unauthorized("You need to login");
+
+      if (userId != GetUserFromCookie()) return Unauthorized("You can't see this page");
+
       var userEntity = await userRepository.GetUser(userId);
       if (userEntity == null)
       {
@@ -47,7 +51,12 @@ namespace LuckySix.Api.Controllers
     public async Task<IActionResult> RegisterUser([FromBody] User user)
     {
 
-      if (isUserLogged()) return BadRequest("You can't register, you are already logged in");
+      if (await IsUserLogged())
+      {
+        return BadRequest("You can't register, you are already logged in");
+      }
+   
+
       bool validation = userValidation.CheckFirstNameAndLastName(user.FirstName, user.LastName);
       if (!validation) return BadRequest("Please enter a valid first name or last name");
 
@@ -63,19 +72,20 @@ namespace LuckySix.Api.Controllers
       var userDto = mapper.Map<UserDto>(userEntity);
 
 
+
       // 201 Code Status Created
-      return CreatedAtRoute("GetUser", new { userId = userDto.IdUser }, userDto);
+      return CreatedAtRoute("GetUser",new { userId = userEntity.IdUser} ,userDto);  
     }
 
 
     [HttpPut("{userId}")]
     public async Task<IActionResult> UpdateUserDetails([FromBody] User user, [FromRoute] int userId)
     {
-      if (userId != GetUserFromCookie()) return BadRequest("You are not authorized for that operation");
-      if (!isUserLogged())
-      {
-        return BadRequest("You are not authorized, please log in");
-      }
+
+      if (!( await IsUserLogged())) return BadRequest("You are not authorized, please log in");
+      
+      if (userId != GetUserFromCookie()) return BadRequest("You are not authorized for this operation");
+     
       bool validation = userValidation.CheckFirstNameAndLastName(user.FirstName, user.LastName);
       if (!validation) return BadRequest("Please enter a valid first name or last name");
 
@@ -96,14 +106,14 @@ namespace LuckySix.Api.Controllers
     public async Task<IActionResult> MakeADeposit([FromBody] User user)
     {
       int userId = GetUserFromCookie();
-      if (!isUserLogged())
+      if (!(await IsUserLogged()))
       {
         return BadRequest("You are not authorized, please log in");
       }
 
       if (!userValidation.IsValidBalance(user.Balance)) return BadRequest("You balance is not valid");
      
-      bool isDepositSuccesfull = userRepository.MakeADeposit(user.Balance, userId);
+      bool isDepositSuccesfull = await userRepository.MakeADeposit(user.Balance, userId);
 
       if (!isDepositSuccesfull)
       {
@@ -138,7 +148,7 @@ namespace LuckySix.Api.Controllers
       return Request.Cookies["session-id"];
     }
 
-    public bool isUserLogged()
+    public async Task<bool> IsUserLogged()
     {
       int userId = GetUserFromCookie();
       string token = GetTokenFromCookie();
@@ -148,7 +158,7 @@ namespace LuckySix.Api.Controllers
         return false;
       }
 
-      var userValid = tokenRepository.IsTokenValid(userId, token);
+      var userValid = await tokenRepository.IsTokenValid(userId, token);
       if (userValid == null) return false;
 
       return true;

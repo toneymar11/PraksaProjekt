@@ -10,9 +10,9 @@ namespace LuckySix.Core.Interfaces
   {
 
     Task<User> LogIn(User user);
-    void SaveToken(int idUser, string token);
+    Task SaveToken(int idUser, string token);
     Task<User> IsTokenValid(int userId, string token);
 
-    bool Logout(int userId, string token);
+    Task<bool> Logout(int userId, string token);
   }
 }

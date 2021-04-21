@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LuckySix.Api.Models;
 using LuckySix.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -21,14 +22,28 @@ namespace LuckySix.Api.Controllers
       this.mapper = mapper;
     }
 
-    [HttpGet("{idRound}")]
-    public async Task<IActionResult> GetRound([FromRoute] int idRound)
+    [HttpGet("{status}")]
+    public async Task<IActionResult> GetRound([FromRoute] string status)
     {
-      if (!roundRepository.IsRoundExists(idRound)) return NotFound("Round doesn't exist");
-      var round = await roundRepository.GetRound(idRound);
-      if (round == null) return NotFound("Round doesn't exist");
+      if (status == "ready")
+      {
+        var readyRound = await roundRepository.GetReadyRound();
+        if (readyRound == null) return BadRequest("This round doesn't exist");
 
-      return Ok(round);
+        return Ok(mapper.Map<ReadyRound>(readyRound));
+      }
+      else if (status == "running")
+      {
+        var runningRound = await roundRepository.GetRunningRound();
+        if(runningRound == null) return BadRequest("This round doesn't exist");
+
+        return Ok(mapper.Map<RunningRound>(runningRound));
+      }
+      else
+      {
+        return BadRequest("This round doesn't exist");
+      }
+
 
     }
 

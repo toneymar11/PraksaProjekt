@@ -33,14 +33,17 @@ namespace LuckySix.Api.Controllers
     [HttpPost]
     public async Task<IActionResult> LoginUser([FromBody] User user)
     {
+
+      if (await IsUserLogged()) return BadRequest("You are already logged in");
       var loginUser = await tokenRepository.LogIn(user);
 
       if (loginUser == null)  return BadRequest("Invalid username or password, please try again");
 
       string token = TokenActions.GenerateToken(loginUser, configuration);
+      Console.WriteLine(token);
 
       loginUser.Token = token;
-      tokenRepository.SaveToken(loginUser.IdUser, token);
+      await tokenRepository.SaveToken(loginUser.IdUser, token);
 
       // SET COOKIES USER ID AND USER TOKEN
       Cookie cookieToken = CookieActions.SetCookie("session-id", token, 1);
@@ -69,7 +72,7 @@ namespace LuckySix.Api.Controllers
         return BadRequest("You are already logged out");
       }
 
-      bool isLogOut = tokenRepository.Logout(userId, token);
+      bool isLogOut = await tokenRepository.Logout(userId, token);
 
       if (!isLogOut)
       {
@@ -82,6 +85,22 @@ namespace LuckySix.Api.Controllers
       return Ok("You are logged out");
     }
 
+
+    public async Task<bool> IsUserLogged()
+    {
+      int userId = GetUserFromCookie();
+      string token = GetTokenFromCookie();
+
+      if (userId == 0 || token == "no")
+      {
+        return false;
+      }
+
+      var userValid = await tokenRepository.IsTokenValid(userId, token);
+      if (userValid == null) return false;
+
+      return true;
+    }
 
     public int GetUserFromCookie()
     {

@@ -21,20 +21,45 @@ namespace LuckySix.Data.Repositories
       DatabaseConnection databaseConnection = new DatabaseConnection();
       sql = new SqlConnection(databaseConnection.connectionString);
     }
-    public async Task<Round> GetRound(int idRound)
+
+    public async Task<Round> GetReadyRound()
     {
       Round round = null;
-      SqlCommand cmd = new SqlCommand("GetRound", sql) { CommandType = CommandType.StoredProcedure };
+      SqlCommand cmd = new SqlCommand("GetReadyRound", sql) { CommandType = CommandType.StoredProcedure };
 
       await sql.OpenAsync();
-      // INPUT PARAMETER
-      SqlParameter roundId = new SqlParameter("@roundId", SqlDbType.Int) { Value = idRound };
 
       // OUTPUT PARAMETER
       SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
 
-      // ADDING PARAMETERS
-      cmd.Parameters.Add(roundId);
+      // ADDING PARAMETER
+      cmd.Parameters.Add(responseMessage);
+
+      var reader = await cmd.ExecuteReaderAsync();
+      while(await reader.ReadAsync())
+      {
+        round = HelpFunctions.MapToRound(reader);
+      }
+      await reader.CloseAsync();
+
+      await sql.CloseAsync();
+
+      if (!responseMessage.Value.ToString().Equals("Success")) return null;
+
+      return round;
+    }
+
+    public async Task<Round> GetRunningRound()
+    {
+      Round round = null;
+      SqlCommand cmd = new SqlCommand("GetRunningRound", sql) { CommandType = CommandType.StoredProcedure };
+
+      await sql.OpenAsync();
+
+      // OUTPUT PARAMETER
+      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+
+      // ADDING PARAMETER
       cmd.Parameters.Add(responseMessage);
 
       var reader = await cmd.ExecuteReaderAsync();
@@ -42,39 +67,13 @@ namespace LuckySix.Data.Repositories
       {
         round = HelpFunctions.MapToRound(reader);
       }
-
       await reader.CloseAsync();
+
       await sql.CloseAsync();
 
-      if (!responseMessage.Value.ToString().Equals("Success"))
-      {
-        return null;
-      }
+      if (!responseMessage.Value.ToString().Equals("Success")) return null;
 
       return round;
-    }
-
-    public bool IsRoundExists(int idRound)
-    {
-      SqlCommand cmd = new SqlCommand("IsRoundExists", sql) { CommandType = CommandType.StoredProcedure };
-
-      sql.Open();
-
-      // INPUT PARAMETER
-      SqlParameter roundId = new SqlParameter("@pidRound", SqlDbType.Int) { Value = idRound };
-
-      // OUTPUT PARAMETER
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
-
-      // ADDING PARAMETERS
-      cmd.Parameters.Add(roundId);
-      cmd.Parameters.Add(responseMessage);
-
-      cmd.ExecuteNonQuery();
-
-      sql.Close();
-
-      return (responseMessage.Value.ToString().Equals("Round exists"));
     }
   }
 }

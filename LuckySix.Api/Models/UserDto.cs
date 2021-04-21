@@ -7,7 +7,6 @@ namespace LuckySix.Api.Models
 {
   public class UserDto
   {
-    public int IdUser { get; set; }
     public string Username { get; set; }
 
     public string FirstName { get; set; }
@@ -16,7 +15,7 @@ namespace LuckySix.Api.Models
 
     public decimal Balance { get; set; }
 
-    public string Token { get; set; }
+
 
   }
 }
