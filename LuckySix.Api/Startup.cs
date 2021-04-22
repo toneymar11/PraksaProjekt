@@ -68,7 +68,6 @@ namespace LuckySix.Api
             .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials()
             .SetIsOriginAllowed((hosts) => true));
       });
 
