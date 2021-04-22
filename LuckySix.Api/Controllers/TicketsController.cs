@@ -16,6 +16,8 @@ namespace LuckySix.Api.Controllers
 
     public TicketsController(ITicketRepository ticketRepository, IMapper mapper, ITicketValidation ticketValidation, ITokenRepository tokenRepository) : base(ticketRepository, mapper, ticketValidation, tokenRepository) { }
 
+    // MUST FIX VALIDATION OF SELECTED NUMBERS, TOO BAD
+
     [HttpPost]
     public async Task<IActionResult> CreateTicket([FromBody] Ticket ticket)
     {

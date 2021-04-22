@@ -14,30 +14,25 @@ namespace LuckySix.Data.Repositories
 {
   public class UserRepository : Repository, IUserRepository
   {
-
- 
-    public UserRepository(): base()
-    {
-
-    }
+    public UserRepository(): base() {}
 
     public async Task<User> GetUser(int userId)
     {
       User user = null;
-
-      SqlCommand cmd = new SqlCommand("GetUser", sql) { CommandType = CommandType.StoredProcedure };
+      
+      cmd = CreateProcedure("GetUser");
 
       await sql.OpenAsync();
 
       // INPUT PARAMETER
-      SqlParameter IdUser = new SqlParameter("@pIdUser", SqlDbType.Int) { Value = userId };
+      IdUser = IntegerParameter("@pIdUser", userId);
 
       // OUTPUT PARAMETER
-      SqlParameter ResponseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 250, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
       cmd.Parameters.Add(IdUser);
-      cmd.Parameters.Add(ResponseMessage);
+      cmd.Parameters.Add(responseMessage);
 
       var reader = await cmd.ExecuteReaderAsync();
       while (await reader.ReadAsync())
@@ -52,13 +47,14 @@ namespace LuckySix.Data.Repositories
 
     public async Task<bool> IsUserExists(string username)
     {
-      SqlCommand cmd = new SqlCommand("CheckUsername", sql) { CommandType = CommandType.StoredProcedure };
+      cmd = CreateProcedure("CheckUsername");
       await sql.OpenAsync();
-      //INPUT PARAMETER
-      SqlParameter Username = new SqlParameter("@pusername", SqlDbType.VarChar) { Value = username };
+
+      //INPUT PARAMETER 
+      Username = StringParameter("@pusername", username);
 
       // OUTPUT PARAMETER
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
       cmd.Parameters.Add(Username);
@@ -77,38 +73,39 @@ namespace LuckySix.Data.Repositories
     {
 
       if (await IsUserExists(user.Username)) return null;
-
-      SqlCommand cmd = new SqlCommand("RegisterUser", sql) { CommandType = CommandType.StoredProcedure };
+      
+      cmd = CreateProcedure("RegisterUser");
 
       User newUser = null;
 
       await sql.OpenAsync();
 
       // INPUT PARAMETERS
-      SqlParameter UserName = new SqlParameter("@pUserName", SqlDbType.VarChar) { Value = user.Username };
-      SqlParameter Password = new SqlParameter("@pPassword", SqlDbType.VarChar) { Value = user.Password };
-      SqlParameter FirstName = new SqlParameter("@pFirstName", SqlDbType.VarChar) { Value = user.FirstName };
-      SqlParameter LastName = new SqlParameter("@pLastName", SqlDbType.VarChar) { Value = user.LastName };
+     
+      Username = StringParameter("@pUserName", user.Username);
+      Password = StringParameter("@pPassword", user.Password);
+      FirstName = StringParameter("@pFirstName", user.FirstName);
+      LastName = StringParameter("@pLastName", user.LastName);
 
 
       // OUTPUT PARAMETERS
       SqlParameter NewId = new SqlParameter("@newId", SqlDbType.Int) { Direction = ParameterDirection.Output };
       SqlParameter Balance = new SqlParameter("@balance", SqlDbType.Decimal) { Direction = ParameterDirection.Output };
-      SqlParameter ResponseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 250, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
-      cmd.Parameters.Add(UserName);
+      cmd.Parameters.Add(Username);
       cmd.Parameters.Add(Password);
       cmd.Parameters.Add(FirstName);
       cmd.Parameters.Add(LastName);
       cmd.Parameters.Add(NewId);
       cmd.Parameters.Add(Balance);
-      cmd.Parameters.Add(ResponseMessage);
+      cmd.Parameters.Add(responseMessage);
 
       await cmd.ExecuteNonQueryAsync();
 
       await sql.CloseAsync();
-      if (ResponseMessage.Value.ToString().Equals("Success"))
+      if (responseMessage.Value.ToString().Equals("Success"))
       {
 
         newUser = await GetUser((int)NewId.Value);

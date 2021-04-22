@@ -15,15 +15,12 @@ namespace LuckySix.Data.Repositories
 {
   public class TicketRepository : Repository, ITicketRepository
   {
-    public TicketRepository() : base()
-    {
+    public TicketRepository() : base() { }
 
-
-    }
     public async Task<Ticket> CreateTicket(Ticket ticket)
     {
 
-      SqlCommand cmd = new SqlCommand("CreateTicket", sql) { CommandType = CommandType.StoredProcedure };
+      cmd = CreateProcedure("CreateTicket");
 
       await sql.OpenAsync();
 
@@ -33,7 +30,7 @@ namespace LuckySix.Data.Repositories
       SqlParameter stake = new SqlParameter("@p_stake", SqlDbType.Decimal) { Value = ticket.Stake };
 
       // OUTPUT PARAMETERS
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
       SqlParameter newId = new SqlParameter("@newId", SqlDbType.Int) { Direction = ParameterDirection.Output };
 
       // ADDING PARAMETERS
@@ -51,7 +48,7 @@ namespace LuckySix.Data.Repositories
 
       var ticketStatus = IsUserWinTicket(newTicket.SelectedNum, newTicket.DrawnNum);
 
-
+      // Structure data
       newTicket.Payout = ticketStatus.Coefficient * newTicket.Stake;
       if (newTicket.SelectedNum.Length != ticketStatus.SelectedNumDrawn.Length)
       {
@@ -65,7 +62,7 @@ namespace LuckySix.Data.Repositories
         newTicket.Won = 1;
       }
 
-
+      // Save data to database
       bool update = await UpdateTicket(newTicket);
 
       return newTicket;
@@ -75,20 +72,21 @@ namespace LuckySix.Data.Repositories
     public async Task<Ticket> GetTicket(int ticketId)
     {
       Ticket ticket = null;
-      SqlCommand cmd = new SqlCommand("GetTicket", sql) { CommandType = CommandType.StoredProcedure };
+      cmd = CreateProcedure("GetTicket");
 
       await sql.OpenAsync();
+
       // INPUT PARAMETER
-      SqlParameter idTicket = new SqlParameter("@pidTicket", SqlDbType.Int) { Value = ticketId };
+      idTicket = IntegerParameter("@pidTicket", ticketId);
 
       // OUTPUT PARAMETER
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
       cmd.Parameters.Add(idTicket);
       cmd.Parameters.Add(responseMessage);
 
-      var reader = await cmd.ExecuteReaderAsync();
+      reader = await cmd.ExecuteReaderAsync();
       while (await reader.ReadAsync())
       {
         ticket = HelpFunctions.MaptoTicket(reader);
@@ -100,6 +98,35 @@ namespace LuckySix.Data.Repositories
 
       return ticket;
     }
+
+
+
+    public async Task<bool> UpdateTicket(Ticket ticket)
+    {
+      cmd = CreateProcedure("UpdateTicket");
+
+      await sql.OpenAsync();
+
+      // INPUT PARAMETERS
+      idTicket = IntegerParameter("@pidTicket", ticket.IdTicket);
+      selectedNumDrawn = StringParameter("@SelectedNumDrawn", ticket.SelectedNumDrawn);
+      won = TinyIntParameter("@Won", ticket.Won);
+      payout = DecimalParameter("@Payout", ticket.Payout);
+
+      //ADDING PARAMETERS
+      cmd.Parameters.Add(idTicket);
+      cmd.Parameters.Add(selectedNumDrawn);
+      cmd.Parameters.Add(won);
+      cmd.Parameters.Add(payout);
+
+
+      await cmd.ExecuteNonQueryAsync();
+
+      await sql.CloseAsync();
+
+      return true;
+    }
+
 
     public TicketStatus IsUserWinTicket(string selectedNum, string DrawnNum)
     {
@@ -116,7 +143,6 @@ namespace LuckySix.Data.Repositories
       // control variable
       int k = 0;
 
-      //string selectedNumDrawn = "";
       for (int i = 0; i < drawnNumbers.Count; i++)
       {
         for (int j = 0; j < selectedNumbers.Count; j++)
@@ -124,7 +150,6 @@ namespace LuckySix.Data.Repositories
           if (drawnNumbers[i] == selectedNumbers[j])
           {
 
-            //Console.WriteLine(selectedNumbers[j]);
             if (selectedNumbers.Count == 1)
             {
               ticket.SelectedNumDrawn = string.Concat(ticket.SelectedNumDrawn, selectedNumbers[j].ToString());
@@ -149,36 +174,8 @@ namespace LuckySix.Data.Repositories
         }
       }
 
+
       return ticket;
-    }
-
-    public async Task<bool> UpdateTicket(Ticket ticket)
-    {
-      SqlCommand cmd = new SqlCommand("UpdateTicket", sql) { CommandType = CommandType.StoredProcedure };
-
-      await sql.OpenAsync();
-
-      // INPUT PARAMETERS
-      SqlParameter ticketId = new SqlParameter("@ticketId", SqlDbType.Int) { Value = ticket.IdTicket };
-      SqlParameter selectedNumDrawn = new SqlParameter("@SelectedNumDrawn", SqlDbType.VarChar) { Value = ticket.SelectedNumDrawn };
-      SqlParameter won = new SqlParameter("@Won", SqlDbType.TinyInt) { Value = ticket.Won };
-      SqlParameter payout = new SqlParameter("@Payout", SqlDbType.Decimal) { Value = ticket.Payout };
-
-
-      //ADDING PARAMETERS
-      cmd.Parameters.Add(ticketId);
-      cmd.Parameters.Add(selectedNumDrawn);
-      cmd.Parameters.Add(won);
-      cmd.Parameters.Add(payout);
-
-
-      await cmd.ExecuteNonQueryAsync();
-
-
-      await sql.CloseAsync();
-
-
-      return true;
     }
   }
 }

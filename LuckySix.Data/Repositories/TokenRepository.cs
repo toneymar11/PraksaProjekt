@@ -14,12 +14,12 @@ namespace LuckySix.Data.Repositories
 {
   public class TokenRepository : Repository, ITokenRepository
   {
-   
+
     private readonly IUserValidation userValidation;
 
     public TokenRepository() : base()
     {
-      
+
       userValidation = new UserValidation();
     }
 
@@ -29,19 +29,21 @@ namespace LuckySix.Data.Repositories
 
 
       User loginUser = null;
-      SqlCommand cmd = new SqlCommand("ValidateLoginInput", sql) { CommandType = CommandType.StoredProcedure };
+
+      cmd = CreateProcedure("ValidateLoginInput");
       await sql.OpenAsync();
 
       // INPUT PARAMETERS
-      SqlParameter userName = new SqlParameter("@pUserName", SqlDbType.VarChar) { Value = user.Username };
-      SqlParameter password = new SqlParameter("@pPassword", SqlDbType.VarChar) { Value = user.Password };
+
+      Username = StringParameter("@pUserName", user.Username);
+      Password = StringParameter("@pPassword", user.Password);
 
       // OUTPUT PARAMETERS
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
-      cmd.Parameters.Add(userName);
-      cmd.Parameters.Add(password);
+      cmd.Parameters.Add(Username);
+      cmd.Parameters.Add(Password);
       cmd.Parameters.Add(responseMessage);
 
       var reader = await cmd.ExecuteReaderAsync();
@@ -61,18 +63,19 @@ namespace LuckySix.Data.Repositories
 
     }
 
-    public async Task SaveToken(int idUser, string token)
+    public async Task SaveToken(int userId, string token)
     {
-      SqlCommand cmd = new SqlCommand("SavingToken", sql) { CommandType = CommandType.StoredProcedure };
+     
+      cmd = CreateProcedure("SavingToken");
 
       await sql.OpenAsync();
 
       // INPUT PARAMETERS
-      SqlParameter userId = new SqlParameter("@pUserId", SqlDbType.Int) { Value = idUser };
-      SqlParameter userToken = new SqlParameter("@pToken", SqlDbType.VarChar) { Value = token };
+      IdUser = IntegerParameter("@pUserId", userId);
+      userToken = StringParameter("@pToken", token);
 
       // ADDING PARAMETERS
-      cmd.Parameters.Add(userId);
+      cmd.Parameters.Add(IdUser);
       cmd.Parameters.Add(userToken);
 
 
@@ -84,22 +87,24 @@ namespace LuckySix.Data.Repositories
 
     public async Task<User> IsTokenValid(int userId, string token)
     {
-      SqlCommand cmd = new SqlCommand("IsTokenValid", sql) { CommandType = CommandType.StoredProcedure };
+      
+      cmd = CreateProcedure("IsTokenValid");
 
       User user = null;
 
       await sql.OpenAsync();
 
       //INPUT PARAMETERS
-      SqlParameter IdUser = new SqlParameter("@pidUser", SqlDbType.Int) { Value = userId };
-      SqlParameter UserToken = new SqlParameter("@ptoken", SqlDbType.VarChar) { Value = token };
+     
+      IdUser = IntegerParameter("@pidUser", userId);
+      userToken = StringParameter("@ptoken", token);
 
       // OUTPUT PARAMETER
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
       cmd.Parameters.Add(IdUser);
-      cmd.Parameters.Add(UserToken);
+      cmd.Parameters.Add(userToken);
       cmd.Parameters.Add(responseMessage);
 
       var reader = await cmd.ExecuteReaderAsync();
@@ -119,25 +124,28 @@ namespace LuckySix.Data.Repositories
 
     public async Task<bool> Logout(int userId, string token)
     {
-      SqlCommand cmd = new SqlCommand("DeleteToken", sql) { CommandType = CommandType.StoredProcedure };
+      
+      cmd = CreateProcedure("DeleteToken");
 
       await sql.OpenAsync();
 
       // INPUT PARAMETERS
-      SqlParameter idUser = new SqlParameter("@pidUser", SqlDbType.Int) { Value = userId };
-      SqlParameter userToken = new SqlParameter("@ptoken", SqlDbType.VarChar) { Value = token };
+      
+      IdUser = IntegerParameter("@pidUser", userId);
+      SqlParameter userToken = StringParameter("@ptoken", token);
+
 
       // OUTPUT PARAMETERS
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
-      cmd.Parameters.Add(idUser);
+      cmd.Parameters.Add(IdUser);
       cmd.Parameters.Add(userToken);
       cmd.Parameters.Add(responseMessage);
 
       await cmd.ExecuteNonQueryAsync();
 
-      await sql .CloseAsync();
+      await sql.CloseAsync();
 
       if (!responseMessage.Value.ToString().Equals("Success"))
       {

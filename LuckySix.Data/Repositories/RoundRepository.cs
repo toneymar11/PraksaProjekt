@@ -14,11 +14,7 @@ namespace LuckySix.Data.Repositories
   public class RoundRepository : Repository, IRoundRepository
   {
 
-
-    public RoundRepository() : base()
-    {
-
-    }
+    public RoundRepository() : base() {}
 
     public async Task<Round> GetReadyRound()
     {
@@ -28,12 +24,12 @@ namespace LuckySix.Data.Repositories
       await sql.OpenAsync();
 
       // OUTPUT PARAMETER
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETER
       cmd.Parameters.Add(responseMessage);
 
-      var reader = await cmd.ExecuteReaderAsync();
+      reader = await cmd.ExecuteReaderAsync();
       while (await reader.ReadAsync())
       {
         round = HelpFunctions.MapToRound(reader);
@@ -50,17 +46,17 @@ namespace LuckySix.Data.Repositories
     public async Task<Round> GetRunningRound()
     {
       Round round = null;
-      cmd = new SqlCommand("GetRunningRound", sql) { CommandType = CommandType.StoredProcedure };
+      cmd = CreateProcedure("GetRunningRound");
 
       await sql.OpenAsync();
 
       // OUTPUT PARAMETER
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETER
       cmd.Parameters.Add(responseMessage);
 
-      var reader = await cmd.ExecuteReaderAsync();
+      reader = await cmd.ExecuteReaderAsync();
       while (await reader.ReadAsync())
       {
         round = HelpFunctions.MapToRound(reader);

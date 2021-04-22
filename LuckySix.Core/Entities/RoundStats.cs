@@ -6,6 +6,7 @@ namespace LuckySix.Core.Entities
 {
   public class RoundStats
   {
+    public int IdRoundStats { get; set; }
     public int IdRound { get; set; }
     public string DrawnNum { get; set; }
     public byte Red { get; set; }
