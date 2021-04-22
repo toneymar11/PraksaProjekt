@@ -12,19 +12,13 @@ using System.Threading.Tasks;
 
 namespace LuckySix.Data.Repositories
 {
-  public class UserRepository : IUserRepository
+  public class UserRepository : Repository, IUserRepository
   {
 
-    public SqlConnection sql;
-
  
-    public UserRepository()
+    public UserRepository(): base()
     {
-      DatabaseConnection databaseConnection = new DatabaseConnection();
 
-      sql = new SqlConnection(databaseConnection.connectionString);
-
-      
     }
 
     public async Task<User> GetUser(int userId)

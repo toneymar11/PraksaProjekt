@@ -13,14 +13,11 @@ using System.Threading.Tasks;
 
 namespace LuckySix.Data.Repositories
 {
-  public class TicketRepository : ITicketRepository
+  public class TicketRepository : Repository, ITicketRepository
   {
-
-    public SqlConnection sql;
-    public TicketRepository()
+    public TicketRepository() : base()
     {
-      DatabaseConnection databaseConnection = new DatabaseConnection();
-      sql = new SqlConnection(databaseConnection.connectionString);
+
 
     }
     public async Task<Ticket> CreateTicket(Ticket ticket)

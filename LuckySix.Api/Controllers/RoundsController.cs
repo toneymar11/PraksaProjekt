@@ -11,15 +11,12 @@ namespace LuckySix.Api.Controllers
 {
   [ApiController]
   [Route("api/[controller]")]
-  public class RoundsController : ControllerBase
+  public class RoundsController : Controller
   {
-    private readonly IRoundRepository roundRepository;
-    private readonly IMapper mapper;
-
-    public RoundsController(IRoundRepository roundRepository, IMapper mapper)
+    
+    public RoundsController(IRoundRepository roundRepository, IMapper mapper) : base(roundRepository, mapper)
     {
-      this.roundRepository = roundRepository;
-      this.mapper = mapper;
+  
     }
 
     [HttpGet("{status}")]

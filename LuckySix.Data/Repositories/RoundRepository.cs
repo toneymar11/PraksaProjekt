@@ -11,21 +11,19 @@ using System.Threading.Tasks;
 
 namespace LuckySix.Data.Repositories
 {
-  public class RoundRepository : IRoundRepository
+  public class RoundRepository : Repository, IRoundRepository
   {
 
-    public SqlConnection sql;
 
-    public RoundRepository()
+    public RoundRepository() : base()
     {
-      DatabaseConnection databaseConnection = new DatabaseConnection();
-      sql = new SqlConnection(databaseConnection.connectionString);
+
     }
 
     public async Task<Round> GetReadyRound()
     {
       Round round = null;
-      SqlCommand cmd = new SqlCommand("GetReadyRound", sql) { CommandType = CommandType.StoredProcedure };
+      cmd = CreateProcedure("GetReadyRound");
 
       await sql.OpenAsync();
 
@@ -36,7 +34,7 @@ namespace LuckySix.Data.Repositories
       cmd.Parameters.Add(responseMessage);
 
       var reader = await cmd.ExecuteReaderAsync();
-      while(await reader.ReadAsync())
+      while (await reader.ReadAsync())
       {
         round = HelpFunctions.MapToRound(reader);
       }
@@ -52,7 +50,7 @@ namespace LuckySix.Data.Repositories
     public async Task<Round> GetRunningRound()
     {
       Round round = null;
-      SqlCommand cmd = new SqlCommand("GetRunningRound", sql) { CommandType = CommandType.StoredProcedure };
+      cmd = new SqlCommand("GetRunningRound", sql) { CommandType = CommandType.StoredProcedure };
 
       await sql.OpenAsync();
 

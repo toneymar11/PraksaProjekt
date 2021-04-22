@@ -12,19 +12,12 @@ namespace LuckySix.Api.Controllers
 {
   [ApiController]
   [Route("api/[controller]")]
-  public class UsersController : ControllerBase
+  public class UsersController : Controller
   {
-    private readonly IUserRepository userRepository;
-    private readonly IMapper mapper;
-    private readonly IUserValidation userValidation;
-    private readonly ITokenRepository tokenRepository;
 
-    public UsersController(IUserRepository userRepository, IMapper mapper, IUserValidation userValidation, ITokenRepository tokenRepository)
+    public UsersController(IUserRepository userRepository, IMapper mapper, IUserValidation userValidation, ITokenRepository tokenRepository) : base(userRepository, mapper, userValidation, tokenRepository)
     {
-      this.userRepository = userRepository;
-      this.mapper = mapper;
-      this.userValidation = userValidation;
-      this.tokenRepository = tokenRepository;
+ 
     }
 
     [HttpGet("{userId}", Name = "GetUser")]
@@ -125,45 +118,6 @@ namespace LuckySix.Api.Controllers
 
       return Ok(mapper.Map<UserDto>(updatedUser));
     }
-
-
-    // Cookies
-    public int GetUserFromCookie()
-    {
-      if (Request.Cookies["user-id"] == null)
-      {
-        return 0;
-      }
-      string cookie = Request.Cookies["user-id"];
-      int number = Int32.Parse(cookie);
-
-      return number;
-    }
-    public string GetTokenFromCookie()
-    {
-      if (Request.Cookies["session-id"] == null)
-      {
-        return "no";
-      }
-      return Request.Cookies["session-id"];
-    }
-
-    public async Task<bool> IsUserLogged()
-    {
-      int userId = GetUserFromCookie();
-      string token = GetTokenFromCookie();
-
-      if (userId == 0 || token == "no")
-      {
-        return false;
-      }
-
-      var userValid = await tokenRepository.IsTokenValid(userId, token);
-      if (userValid == null) return false;
-
-      return true;
-    }
-
 
   }
 }

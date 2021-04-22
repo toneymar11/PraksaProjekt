@@ -39,6 +39,7 @@ namespace LuckySix.Api
       services.AddScoped<ITicketRepository, TicketRepository>();
       services.AddScoped<IRoundRepository, RoundRepository>();
       services.AddScoped<ITicketValidation, TicketValidation>();
+      services.AddScoped<IRoundStatsRepository, RoundStatsRepository>();
 
       // AUTO MAPPER
       services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -60,6 +61,17 @@ namespace LuckySix.Api
         };
       });
 
+      services.AddCors(options =>
+      {
+        options.AddPolicy("CorsPolicy",
+            builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()
+            .SetIsOriginAllowed((hosts) => true));
+      });
+
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -75,6 +87,8 @@ namespace LuckySix.Api
       app.UseRouting();
 
       app.UseAuthorization();
+
+      app.UseCors("CorsPolicy");
 
       app.UseEndpoints(endpoints =>
       {

@@ -12,15 +12,14 @@ using System.Threading.Tasks;
 
 namespace LuckySix.Data.Repositories
 {
-  public class TokenRepository : ITokenRepository
+  public class TokenRepository : Repository, ITokenRepository
   {
-    public SqlConnection sql;
+   
     private readonly IUserValidation userValidation;
 
-    public TokenRepository()
+    public TokenRepository() : base()
     {
-      DatabaseConnection databaseConnection = new DatabaseConnection();
-      sql = new SqlConnection(databaseConnection.connectionString);
+      
       userValidation = new UserValidation();
     }
 

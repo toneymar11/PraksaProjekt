@@ -15,19 +15,12 @@ namespace LuckySix.Api.Controllers
 {
   [ApiController]
   [Route("api/[controller]")]
-  public class TokensController : ControllerBase
+  public class TokensController : Controller
   {
 
-    private readonly ITokenRepository tokenRepository;
-    private readonly IMapper mapper;
-    private readonly IConfiguration configuration;
-
-    public TokensController(ITokenRepository tokenRepository, IMapper mapper, IConfiguration configuration)
+    public TokensController(ITokenRepository tokenRepository, IMapper mapper, IConfiguration configuration) : base(tokenRepository, mapper, configuration)
     {
-      this.tokenRepository = tokenRepository;
-      this.mapper = mapper;
-      this.configuration = configuration;
-     
+   
     }
 
     [HttpPost]
@@ -83,43 +76,6 @@ namespace LuckySix.Api.Controllers
       Response.Cookies.Delete("user-id");
 
       return Ok("You are logged out");
-    }
-
-
-    public async Task<bool> IsUserLogged()
-    {
-      int userId = GetUserFromCookie();
-      string token = GetTokenFromCookie();
-
-      if (userId == 0 || token == "no")
-      {
-        return false;
-      }
-
-      var userValid = await tokenRepository.IsTokenValid(userId, token);
-      if (userValid == null) return false;
-
-      return true;
-    }
-
-    public int GetUserFromCookie()
-    {
-      if (Request.Cookies["user-id"] == null)
-      {
-        return 0;
-      }
-      string cookie = Request.Cookies["user-id"];
-      int number = Int32.Parse(cookie);
-
-      return number;
-    }
-    public string GetTokenFromCookie()
-    {
-      if (Request.Cookies["session-id"] == null)
-      {
-        return "no";
-      }
-      return Request.Cookies["session-id"];
     }
 
   }
