@@ -28,14 +28,14 @@ namespace LuckySix.Data.Repositories
 
     public bool IsValidSelectedNumbers(string numbers)
     {
-      Console.WriteLine(numbers);
+      //Console.WriteLine(numbers);
       if (numbers.Length != 11) return false;
       for (int i = 0; i < numbers.Length - 1; i += 2)
       {
 
         for (int j = i + 2; j < numbers.Length; j += 2)
         {
-          if (numbers[i] == numbers[j])
+          if (numbers[i] == numbers[j] || numbers[i] == 0)
           {
             Console.WriteLine($"I:{i} J:{j}");
             return false;

@@ -1,4 +1,5 @@
 ﻿using LuckySix.Core.Entities;
+using LuckySix.Core.TicketCalculation;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,6 +12,8 @@ namespace LuckySix.Core.Interfaces
     Task<Ticket> CreateTicket(Ticket ticket);
     Task<Ticket> GetTicket(int ticketId);
 
-    string IsUserWinTicket(string selectedNum, string DrawnNum);
+    TicketStatus IsUserWinTicket(string selectedNum, string DrawnNum);
+
+    Task<bool> UpdateTicket(Ticket ticket);
   }
 }

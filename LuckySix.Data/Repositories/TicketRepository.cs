@@ -1,5 +1,6 @@
 ﻿using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
+using LuckySix.Core.TicketCalculation;
 using LuckySix.Data.Database;
 using LuckySix.Data.Utilities;
 using System;
@@ -24,7 +25,7 @@ namespace LuckySix.Data.Repositories
     }
     public async Task<Ticket> CreateTicket(Ticket ticket)
     {
-     
+
       SqlCommand cmd = new SqlCommand("CreateTicket", sql) { CommandType = CommandType.StoredProcedure };
 
       await sql.OpenAsync();
@@ -51,12 +52,27 @@ namespace LuckySix.Data.Repositories
 
       Ticket newTicket = await GetTicket((int)newId.Value);
 
-      string selectedNumDrawn = IsUserWinTicket(newTicket.SelectedNum, newTicket.DrawnNum);
+      var ticketStatus = IsUserWinTicket(newTicket.SelectedNum, newTicket.DrawnNum);
 
-      Console.WriteLine(selectedNumDrawn);
+
+      newTicket.Payout = ticketStatus.Coefficient * newTicket.Stake;
+      if (newTicket.SelectedNum.Length != ticketStatus.SelectedNumDrawn.Length)
+      {
+        ticketStatus.SelectedNumDrawn = ticketStatus.SelectedNumDrawn.Remove(ticketStatus.SelectedNumDrawn.Length - 1, 1);
+        newTicket.SelectedNumDrawn = ticketStatus.SelectedNumDrawn;
+        newTicket.Won = 0;
+      }
+      else
+      {
+        newTicket.SelectedNumDrawn = ticketStatus.SelectedNumDrawn;
+        newTicket.Won = 1;
+      }
+
+
+      bool update = await UpdateTicket(newTicket);
 
       return newTicket;
-      
+
     }
 
     public async Task<Ticket> GetTicket(int ticketId)
@@ -87,34 +103,85 @@ namespace LuckySix.Data.Repositories
 
       return ticket;
     }
-    // NEED TO FIX THIS FUNCTION
-    public string IsUserWinTicket(string selectedNum, string DrawnNum)
+
+    public TicketStatus IsUserWinTicket(string selectedNum, string DrawnNum)
     {
-      var selectedNumbers = selectedNum.Split(',').Select(Int32.Parse).ToList(); 
+      var selectedNumbers = selectedNum.Split(',').Select(Int32.Parse).ToList();
 
       var drawnNumbers = DrawnNum.Split(',').Select(Int32.Parse).ToList();
 
-      string selectedNumDrawn = "";
-      for(int i=0; i<drawnNumbers.Count; i++)
+      TicketStatus ticket = new TicketStatus
       {
-        for(int j=0; j<selectedNumbers.Count; j++)
+        SelectedNumDrawn = "",
+        Index = 0
+      };
+
+      // control variable
+      int k = 0;
+
+      //string selectedNumDrawn = "";
+      for (int i = 0; i < drawnNumbers.Count; i++)
+      {
+        for (int j = 0; j < selectedNumbers.Count; j++)
         {
-          if(drawnNumbers[i] == selectedNumbers[j])
+          if (drawnNumbers[i] == selectedNumbers[j])
           {
-            Console.WriteLine(selectedNumbers[j]);
-            if (j != selectedNumbers.Count - 1)
+
+            //Console.WriteLine(selectedNumbers[j]);
+            if (selectedNumbers.Count == 1)
             {
-              selectedNumDrawn += drawnNumbers[i].ToString() + ",";
+              ticket.SelectedNumDrawn = string.Concat(ticket.SelectedNumDrawn, selectedNumbers[j].ToString());
+              k = 1;
+              // last number index
+              ticket.Index = i;
+              ticket.Update();
             }
-            selectedNumDrawn += drawnNumbers[i].ToString();
+            else
+            {
+              ticket.SelectedNumDrawn = string.Concat(ticket.SelectedNumDrawn, selectedNumbers[j].ToString() + ",");
+            }
             selectedNumbers.RemoveAt(j);
-            continue;
+            break;
 
           }
         }
+
+        if (k == 1)
+        {
+          break;
+        }
       }
 
-      return selectedNumDrawn;
+      return ticket;
+    }
+
+    public async Task<bool> UpdateTicket(Ticket ticket)
+    {
+      SqlCommand cmd = new SqlCommand("UpdateTicket", sql) { CommandType = CommandType.StoredProcedure };
+
+      await sql.OpenAsync();
+
+      // INPUT PARAMETERS
+      SqlParameter ticketId = new SqlParameter("@ticketId", SqlDbType.Int) { Value = ticket.IdTicket };
+      SqlParameter selectedNumDrawn = new SqlParameter("@SelectedNumDrawn", SqlDbType.VarChar) { Value = ticket.SelectedNumDrawn };
+      SqlParameter won = new SqlParameter("@Won", SqlDbType.TinyInt) { Value = ticket.Won };
+      SqlParameter payout = new SqlParameter("@Payout", SqlDbType.Decimal) { Value = ticket.Payout };
+
+
+      //ADDING PARAMETERS
+      cmd.Parameters.Add(ticketId);
+      cmd.Parameters.Add(selectedNumDrawn);
+      cmd.Parameters.Add(won);
+      cmd.Parameters.Add(payout);
+
+
+      await cmd.ExecuteNonQueryAsync();
+
+
+      await sql.CloseAsync();
+
+
+      return true;
     }
   }
 }
