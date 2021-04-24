@@ -10,7 +10,7 @@ namespace LuckySix.Data.Database
 
     public DatabaseConnection()
     {
-      connectionString = "";
+      connectionString = "Server=uk.sql01.yourwebservers.com,1786;Database=bingo;User Id=bingo;Password=bingo;";
     }
   }
 }
