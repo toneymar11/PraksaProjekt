@@ -50,6 +50,8 @@ namespace LuckySix.Data.Repositories
 
     public bool IsStringInFormat(string str)
     {
+      
+
       Regex rgx = new Regex(@"\D");
       int counter = 0;
       foreach(Match match in rgx.Matches(str))
