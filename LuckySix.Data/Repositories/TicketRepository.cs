@@ -25,26 +25,26 @@ namespace LuckySix.Data.Repositories
       await sql.OpenAsync();
 
       // INPUT PARAMETERS
-      SqlParameter userId = new SqlParameter("@p_userId", SqlDbType.Int) { Value = ticket.IdUser };
-      SqlParameter selectedNum = new SqlParameter("@p_selectedNum", SqlDbType.VarChar) { Value = ticket.SelectedNum };
-      SqlParameter stake = new SqlParameter("@p_stake", SqlDbType.Decimal) { Value = ticket.Stake };
+      IdUser = IntegerParameter("@p_userId", ticket.IdUser);
+      selectedNum = StringParameter("@p_selectedNum", ticket.SelectedNum);
+      stake = DecimalParameter("@p_stake", ticket.Stake);
 
       // OUTPUT PARAMETERS
       responseMessage = ResponseMessage();
-      SqlParameter newId = new SqlParameter("@newId", SqlDbType.Int) { Direction = ParameterDirection.Output };
+      NewId = IntegerOutput("@newId");
 
       // ADDING PARAMETERS
-      cmd.Parameters.Add(userId);
+      cmd.Parameters.Add(IdUser);
       cmd.Parameters.Add(selectedNum);
       cmd.Parameters.Add(stake);
       cmd.Parameters.Add(responseMessage);
-      cmd.Parameters.Add(newId);
+      cmd.Parameters.Add(NewId);
 
       await cmd.ExecuteNonQueryAsync();
 
       await sql.CloseAsync();
 
-      Ticket newTicket = await GetTicket((int)newId.Value);
+      Ticket newTicket = await GetTicket((int)NewId.Value);
 
       var ticketStatus = IsUserWinTicket(newTicket.SelectedNum, newTicket.DrawnNum);
 

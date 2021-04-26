@@ -25,13 +25,18 @@ namespace LuckySix.Data.Repositories
     public SqlParameter FirstName;
     public SqlParameter LastName;
     public SqlParameter userToken;
+    public SqlParameter Balance;
+    public SqlParameter selectedNum;
+    public SqlParameter stake;
+    public SqlParameter NewId;
+
 
 
 
     public Repository()
     {
       DatabaseConnection databaseConnection = new DatabaseConnection();
-      sql = new SqlConnection(databaseConnection.connectionString);
+      sql = new SqlConnection(databaseConnection.ConnectionString);
       
     }
 
@@ -42,6 +47,14 @@ namespace LuckySix.Data.Repositories
     public SqlParameter ResponseMessage()
     {
       return new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+    }
+    public SqlParameter DecimalOutput(string ParameterName)
+    {
+      return new SqlParameter(ParameterName, SqlDbType.Decimal) { Direction = ParameterDirection.Output };
+    }
+    public SqlParameter IntegerOutput(string ParameterName)
+    {
+      return new SqlParameter(ParameterName, SqlDbType.Int) { Direction = ParameterDirection.Output };
     }
 
     public SqlParameter IntegerParameter(string ParameterName, int Value)

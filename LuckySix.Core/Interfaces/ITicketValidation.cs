@@ -13,5 +13,7 @@ namespace LuckySix.Core.Interfaces
     bool IsValidStake(decimal stake);
 
     Task<bool> IsPossibleBetting(decimal stake, int userId);
+
+    bool IsStringInFormat(string str);
   }
 }
