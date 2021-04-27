@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LuckySix.Api.Models;
 using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +41,18 @@ namespace LuckySix.Api.Controllers
 
 
       return Ok(newTicket);
+    }
+    [HttpGet]
+    public async Task<IActionResult> GetTicketsRound()
+    {
+      if (!(await IsUserLogged())) return Unauthorized("You need to login");
+
+      var tickets = await ticketRepository.GetTicketsRound(GetUserFromCookie());
+
+      if (tickets == null) return BadRequest("Tickets don't exist");
+
+
+      return Ok(mapper.Map<IEnumerable<TicketsRound>>(tickets));
     }
 
 

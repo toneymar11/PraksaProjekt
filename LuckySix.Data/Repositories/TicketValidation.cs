@@ -30,7 +30,7 @@ namespace LuckySix.Data.Repositories
 
     public bool IsValidSelectedNumbers(string numbers)
     {
-   
+
       if (!IsStringInFormat(numbers)) return false;
       if (numbers.Length < 11) return false;
 
@@ -50,20 +50,35 @@ namespace LuckySix.Data.Repositories
 
     public bool IsStringInFormat(string str)
     {
-      
+
+      int counter = 0, counter1= 0;
 
       Regex rgx = new Regex(@"\D");
-      int counter = 0;
-      foreach(Match match in rgx.Matches(str))
+
+      foreach (Match match in rgx.Matches(str))
       {
-        counter++;
+        counter1++;
+
       }
-      if(counter != 5)
+
+      for (int i = 0; i < str.Length; i++)
+      {
+        if (str[i] == ',')
+        {
+          if (Char.IsDigit(str[i - 1]) && Char.IsDigit(str[i+1]) )
+          {
+            counter++;
+          }
+        
+        }
+      }
+
+      if(counter != 5 || counter1 !=5 )
       {
         return false;
       }
 
-        return true;
+      return true;
     }
 
     public bool IsValidStake(decimal stake)

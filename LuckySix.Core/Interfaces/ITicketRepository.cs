@@ -15,5 +15,7 @@ namespace LuckySix.Core.Interfaces
     TicketStatus IsUserWinTicket(string selectedNum, string DrawnNum);
 
     Task<bool> UpdateTicket(Ticket ticket);
+
+    Task<IEnumerable<Ticket>> GetTicketsRound(int userId);
   }
 }

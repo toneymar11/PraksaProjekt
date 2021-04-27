@@ -177,5 +177,31 @@ namespace LuckySix.Data.Repositories
 
       return ticket;
     }
+
+    public async Task<IEnumerable<Ticket>> GetTicketsRound(int userId)
+    {
+      var tickets = new List<Ticket>();
+      cmd = CreateProcedure("GetTicketsRound");
+      await sql.OpenAsync();
+
+      IdUser = IntegerParameter("@puserId", userId);
+      responseMessage = ResponseMessage();
+
+      cmd.Parameters.Add(IdUser);
+      cmd.Parameters.Add(responseMessage);
+
+      var reader = await cmd.ExecuteReaderAsync();
+      while (await reader.ReadAsync())
+      {
+        tickets.Add(HelpFunctions.MaptoTicket(reader));
+      }
+
+      await sql.CloseAsync();
+      await reader.CloseAsync();
+
+      if (!responseMessage.Value.ToString().Equals("Success")) return null;
+
+      return tickets;
+    }
   }
 }
