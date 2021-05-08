@@ -53,8 +53,8 @@ namespace LuckySix.Api.Controllers
 
     public async Task<bool> IsUserLogged()
     {
-      int userId = GetUserFromCookie();
-      string token = GetTokenFromCookie();
+      int userId = GetUserFromHeader();
+      string token = GetTokenFromHeader();
 
       if (userId == 0 || token == "no")
       {
@@ -67,24 +67,37 @@ namespace LuckySix.Api.Controllers
       return true;
     }
 
-    public int GetUserFromCookie()
+    public int GetUserFromHeader()
     {
-      if (Request.Cookies["user-id"] == null)
+      if (Request.Headers["userid"].ToString().Equals(""))
       {
+        Console.WriteLine("hello");
+
         return 0;
       }
-      string cookie = Request.Cookies["user-id"];
-      int number = Int32.Parse(cookie);
+      string userid = Request.Headers["userid"];
 
+      int number = Int32.Parse(userid);
+      Console.WriteLine(number);
       return number;
     }
-    public string GetTokenFromCookie()
+    public string GetTokenFromHeader()
     {
-      if (Request.Cookies["session-id"] == null)
+      if (Request.Headers["authorization"].ToString().Equals(""))
       {
+        Console.WriteLine("hello");  
         return "no";
       }
-      return Request.Cookies["session-id"];
+
+      return Request.Headers["authorization"];
     }
+
+    public void ResponseHeaders()
+    {
+      Response.Headers["authorization"] = GetTokenFromHeader();
+      Response.Headers["userid"] = GetUserFromHeader().ToString();
+    }
+
+    
   }
 }

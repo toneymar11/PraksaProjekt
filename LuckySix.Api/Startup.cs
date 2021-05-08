@@ -4,6 +4,8 @@ using LuckySix.Data.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +23,7 @@ namespace LuckySix.Api
 {
   public class Startup
   {
+    readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
     public Startup(IConfiguration configuration)
     {
       Configuration = configuration;
@@ -28,9 +31,19 @@ namespace LuckySix.Api
 
     public IConfiguration Configuration { get; }
 
-    // This method gets called by the runtime. Use this method to add services to the container.
+    // This method gets called by the runtime. Use this method to add services to t,he container.
     public void ConfigureServices(IServiceCollection services)
     {
+      services.AddCors(options =>
+      {
+        options.AddPolicy(name: MyAllowSpecificOrigins,
+                          builder =>
+                          {
+                            builder.WithOrigins("http://localhost:3000", "http://localhost:3001",
+                                                    "http://138.68.72.169:3000").AllowAnyHeader().AllowAnyMethod().WithExposedHeaders("authorization", "userid");
+                          });
+      });
+
       services.AddControllers();
 
       services.AddScoped<IUserRepository, UserRepository>();
@@ -44,7 +57,7 @@ namespace LuckySix.Api
       // AUTO MAPPER
       services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-      // JWT BEARER
+      //JWT BEARER
 
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
       {
@@ -61,37 +74,31 @@ namespace LuckySix.Api
         };
       });
 
-      services.AddCors(options =>
-      {
-        options.AddPolicy("CorsPolicy",
-            builder => builder
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .SetIsOriginAllowed((hosts) => true));
-      });
 
     }
 
-    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+   
+   // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+      
       if (env.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();
       }
-
-      app.UseHttpsRedirection();
-
+     
+      
       app.UseRouting();
 
-      app.UseAuthorization();
+      app.UseCors();
 
-      app.UseCors("CorsPolicy");
+
+      // are you allowed?  
+      app.UseAuthorization();
 
       app.UseEndpoints(endpoints =>
       {
-        endpoints.MapControllers();
+        endpoints.MapControllers().RequireCors(MyAllowSpecificOrigins); ;
       });
     }
   }

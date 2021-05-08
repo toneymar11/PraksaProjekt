@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LuckySix.Api.Models;
 using LuckySix.Core.Interfaces;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace LuckySix.Api.Controllers
   
     }
 
+     
     [HttpGet("{status}")]
     public async Task<IActionResult> GetRound([FromRoute] string status)
     {
@@ -43,6 +45,15 @@ namespace LuckySix.Api.Controllers
 
 
     }
+
+     
+    [HttpOptions]
+    public IActionResult GetOptions()
+    {
+      Response.Headers.Add("Allow", "GET, OPTIONS, POST, PUT");
+      return Ok();
+    }
+
 
   }
 }

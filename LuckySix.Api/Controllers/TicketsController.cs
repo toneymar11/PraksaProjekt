@@ -2,6 +2,7 @@
 using LuckySix.Api.Models;
 using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace LuckySix.Api.Controllers
     public TicketsController(ITicketRepository ticketRepository, IMapper mapper, ITicketValidation ticketValidation, ITokenRepository tokenRepository) : base(ticketRepository, mapper, ticketValidation, tokenRepository) { }
 
 
-
+   
     [HttpPost]
     public async Task<IActionResult> CreateTicket([FromBody] Ticket ticket)
     {
@@ -30,7 +31,7 @@ namespace LuckySix.Api.Controllers
 
       if (!ticketValidation.IsValidStake(ticket.Stake)) return BadRequest("You stake value is not valid");
 
-      int userId = GetUserFromCookie();
+      int userId = GetUserFromHeader();
 
       if (!( await ticketValidation.IsPossibleBetting(ticket.Stake, userId))) return BadRequest("Insufficient Funds");
 
@@ -39,23 +40,33 @@ namespace LuckySix.Api.Controllers
 
       if (newTicket == null) return BadRequest("Ticket is invalid");
 
-
+      ResponseHeaders();
       return Ok(newTicket);
     }
+
+    
+    
+    
+    
     [HttpGet]
     public async Task<IActionResult> GetTicketsRound()
     {
       if (!(await IsUserLogged())) return Unauthorized("You need to login");
 
-      var tickets = await ticketRepository.GetTicketsRound(GetUserFromCookie());
+      var tickets = await ticketRepository.GetTicketsRound(GetUserFromHeader());
 
       if (tickets == null) return BadRequest("Tickets don't exist");
 
-
+      ResponseHeaders();
       return Ok(mapper.Map<IEnumerable<TicketsRound>>(tickets));
     }
 
-
+    [HttpOptions]
+    public IActionResult GetOptions()
+    {
+      Response.Headers.Add("Allow", "GET, OPTIONS, POST, PUT");
+      return Ok();
+    }
 
   }
 }

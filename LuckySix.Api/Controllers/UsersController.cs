@@ -2,6 +2,7 @@
 using LuckySix.Api.Models;
 using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -19,13 +20,15 @@ namespace LuckySix.Api.Controllers
     {
  
     }
-
+     
+    
+   
     [HttpGet("{userId}", Name = "GetUser")]
     public async Task<IActionResult> GetUser([FromRoute] int userId)
     {
       if (!(await IsUserLogged())) return Unauthorized("You need to login");
 
-      if (userId != GetUserFromCookie()) return Unauthorized("You can't see this page");
+      if (userId != GetUserFromHeader()) return Unauthorized("You can't see this page");
 
       var userEntity = await userRepository.GetUser(userId);
       if (userEntity == null)
@@ -35,11 +38,11 @@ namespace LuckySix.Api.Controllers
 
       var userDto = mapper.Map<UserDto>(userEntity);
 
-
+      ResponseHeaders();
       return Ok(userDto);
     }
 
-
+     
     [HttpPost]
     public async Task<IActionResult> RegisterUser([FromBody] User user)
     {
@@ -70,14 +73,14 @@ namespace LuckySix.Api.Controllers
       return CreatedAtRoute("GetUser",new { userId = userEntity.IdUser} ,userDto);  
     }
 
-
+     
     [HttpPut("{userId}")]
     public async Task<IActionResult> UpdateUserDetails([FromBody] User user, [FromRoute] int userId)
     {
 
       if (!( await IsUserLogged())) return BadRequest("You are not authorized, please log in");
       
-      if (userId != GetUserFromCookie()) return BadRequest("You are not authorized for this operation");
+      if (userId != GetUserFromHeader()) return BadRequest("You are not authorized for this operation");
      
       bool validation = userValidation.CheckFirstNameAndLastName(user.FirstName, user.LastName);
       if (!validation) return BadRequest("Please enter a valid first name or last name");
@@ -90,15 +93,15 @@ namespace LuckySix.Api.Controllers
       {
         return BadRequest("User with that username already exists");
       }
-
-
+      ResponseHeaders();
       return Ok(mapper.Map<UserDto>(updatedUser));
     }
 
+     
     [HttpPut("balance")]
     public async Task<IActionResult> MakeADeposit([FromBody] User user)
     {
-      int userId = GetUserFromCookie();
+      int userId = GetUserFromHeader();
       if (!(await IsUserLogged()))
       {
         return BadRequest("You are not authorized, please log in");
@@ -115,9 +118,16 @@ namespace LuckySix.Api.Controllers
       var updatedUser = await userRepository.GetUser(userId);
 
 
-
+      ResponseHeaders();
       return Ok(mapper.Map<UserDto>(updatedUser));
     }
 
+     
+    [HttpOptions]
+    public IActionResult GetOptions()
+    {
+      Response.Headers.Add("Allow", "GET, OPTIONS, POST, PUT");
+      return Ok();
+    }
   }
 }
