@@ -23,7 +23,7 @@ namespace LuckySix.Data.Validation
     }
     public bool CheckLogin(string username, string password)
     {
-     if(username.Equals("") || password.Equals(""))
+     if(username.Equals("") || username == null || password.Equals("") || password == null)
       {
         return false;
       }
