@@ -22,7 +22,7 @@ namespace LuckySix.Api.Controllers
 
         
         [HttpPost]
-        public async Task<IActionResult> CreateTicket([FromBody] Ticket ticket)
+        public async Task<IActionResult> CreateTicket([FromBody] TicketPost ticket)
         {
             if (!(await IsUserLogged())) return Unauthorized("You need to login");
 
@@ -34,10 +34,11 @@ namespace LuckySix.Api.Controllers
 
             int userId = GetUserFromHeader();
 
+            var ticketEntity = mapper.Map<Ticket>(ticket);
             if (!(await ticketValidation.IsPossibleBetting(ticket.Stake, userId))) return BadRequest("Insufficient Funds");
 
-            ticket.IdUser = userId;
-            var newTicket = await ticketRepository.CreateTicket(ticket);
+            ticketEntity.IdUser = userId;
+            var newTicket = await ticketRepository.CreateTicket(ticketEntity);
 
             if (newTicket == null) return BadRequest("Ticket is invalid");
 

@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using FluentValidation.Results;
+using LuckySix.Api.Cookies;
 using LuckySix.Api.Models;
 using LuckySix.Api.Token;
+using LuckySix.Api.Validation;
 using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
 using Microsoft.AspNetCore.Authentication;
@@ -30,11 +33,12 @@ namespace LuckySix.Api.Controllers
 
        
         [HttpPost]
-        public async Task<IActionResult> LoginUser([FromBody] User user)
+        public async Task<IActionResult> LoginUser([FromBody] UserLogin user)
         {
-            if (user == null) return BadRequest("Invalid type");
+
             if (await IsUserLogged()) return BadRequest("You are already logged in");
-            var loginUser = await tokenRepository.LogIn(user);
+            var entityUser = mapper.Map<User>(user);
+            var loginUser = await tokenRepository.LogIn(entityUser);
 
             if (loginUser == null) return BadRequest("Invalid username or password, please try again");
 
@@ -84,8 +88,8 @@ namespace LuckySix.Api.Controllers
                 return BadRequest("You are already logged out");
             }
             // DELETE HEADERS
-            Response.Headers.Remove("authorization");
-            Response.Headers.Remove("userid");
+            Response.Headers["authorization"] = "null";
+            Response.Headers["userid"] = "null";
 
             return Ok("You are logged out");
         }

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.OpenApi.Models;
+using FluentValidation.AspNetCore;
 
 namespace LuckySix.Api
 {
@@ -38,10 +39,14 @@ namespace LuckySix.Api
 
             services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
             {
-                builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("userid", "authorization");
+                builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("userid", "authorization", "Set-Cookie");
             }));
 
-            services.AddControllers().AddNewtonsoftJson();
+            services.AddControllers().AddNewtonsoftJson().AddFluentValidation(s =>
+            {
+                s.RegisterValidatorsFromAssemblyContaining<Startup>();
+                s.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
+            }); 
 
 
             services.AddSwaggerGen(c =>

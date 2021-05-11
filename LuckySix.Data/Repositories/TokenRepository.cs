@@ -25,7 +25,7 @@ namespace LuckySix.Data.Repositories
 
     public async Task<User> LogIn(User user)
     {
-      if (!userValidation.CheckLogin(user.Username, user.Password)) return null;
+      //if (!userValidation.CheckLogin(user.Username, user.Password)) return null;
 
 
       User loginUser = null;

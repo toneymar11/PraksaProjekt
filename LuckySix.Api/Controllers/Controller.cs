@@ -71,15 +71,7 @@ namespace LuckySix.Api.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         public int GetUserFromHeader()
         {
-            string userid;
-            try
-            {
-                userid = Request.Headers["userid"];
-            }
-            catch (NullReferenceException err)
-            {
-                return 0;
-            }
+            string userid = Request.Headers["userid"];
 
 
             if (userid == null || userid.Equals("null")) return 0;
@@ -92,17 +84,8 @@ namespace LuckySix.Api.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         public string GetTokenFromHeader()
         {
-            string auth;
-            try
-            {
-                auth = Request.Headers["authorization"];
-            }
-            catch (NullReferenceException err)
-            {
-                return "no";
-            }
+            string auth = Request.Headers["authorization"];
 
-             auth = Request.Headers["authorization"];
 
             if (auth == null || auth.Equals("null")) return "no";
 
