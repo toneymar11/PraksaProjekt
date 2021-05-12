@@ -2,11 +2,7 @@
 using LuckySix.Api.Models;
 using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace LuckySix.Api.Controllers
@@ -45,7 +41,7 @@ namespace LuckySix.Api.Controllers
 
         
         [HttpPost]
-        public async Task<IActionResult> RegisterUser([FromBody] User user)
+        public async Task<IActionResult> RegisterUser([FromBody] UserRegister user)
         {
 
             if (await IsUserLogged())
@@ -60,7 +56,7 @@ namespace LuckySix.Api.Controllers
             validation = userValidation.CheckLogin(user.Username, user.Password);
             if (!validation) return BadRequest("Password must be at least 8 characters or username is empty");
 
-            var userEntity = await userRepository.RegisterUser(user);
+            var userEntity = await userRepository.RegisterUser(mapper.Map<User>(user));
             if (userEntity == null)
             {
                 return NotFound("Username already exists");

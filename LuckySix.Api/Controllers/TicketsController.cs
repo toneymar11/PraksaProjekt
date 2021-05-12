@@ -2,7 +2,6 @@
 using LuckySix.Api.Models;
 using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -30,7 +29,7 @@ namespace LuckySix.Api.Controllers
 
             if (!ticketValidation.IsValidSelectedNumbers(ticket.SelectedNum)) return BadRequest("Selected numbers are not valid");
 
-            if (!ticketValidation.IsValidStake(ticket.Stake)) return BadRequest("You stake value is not valid");
+            
 
             int userId = GetUserFromHeader();
 

@@ -1,14 +1,11 @@
 ﻿using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
 using LuckySix.Core.TicketCalculation;
-using LuckySix.Data.Database;
 using LuckySix.Data.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace LuckySix.Data.Repositories
@@ -65,7 +62,8 @@ namespace LuckySix.Data.Repositories
       // Save data to database
       bool update = await UpdateTicket(newTicket);
 
-      return newTicket;
+
+      return update ?  newTicket : null;
 
     }
 

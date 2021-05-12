@@ -1,31 +1,29 @@
 ﻿using FluentValidation;
 using LuckySix.Api.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace LuckySix.Api.Validation
 {
-    public class TicketPostValidator : AbstractValidator<TicketPost>
+  public class TicketPostValidator : AbstractValidator<TicketPost>
+  {
+
+    public TicketPostValidator()
     {
-
-        public TicketPostValidator()
-        {
-            RuleFor(t => t.SelectedNum)
-                .Cascade(CascadeMode.Stop)
-                .NotEmpty()
-                .WithMessage("{PropertyName} should be not empty. NEVER!");
-
-            //.Must(IsValidUsername).WithMessage("{PropertyName} should be all letters.");
+      RuleFor(t => t.SelectedNum)
+          .Cascade(CascadeMode.Stop)
+          .NotEmpty()
+          .WithMessage("{PropertyName} should be not empty. NEVER!").Length(11,17);
 
 
-            RuleFor(u => u.Stake)
-                .Cascade(CascadeMode.Stop)
-                .NotEmpty()
-                .WithMessage("{PropertyName} should be not empty. NEVER!");
-                
 
-        }
+
+      RuleFor(u => u.Stake)
+          .Cascade(CascadeMode.Stop)
+          .NotEmpty()
+          .WithMessage("{PropertyName} should be not empty. NEVER!")
+          .InclusiveBetween(1, 100).WithMessage("{PropertyName} must be in range 1 to 100");
+
+
     }
+  }
 }

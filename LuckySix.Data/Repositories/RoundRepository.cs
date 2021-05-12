@@ -1,12 +1,6 @@
 ﻿using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
-using LuckySix.Data.Database;
 using LuckySix.Data.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace LuckySix.Data.Repositories

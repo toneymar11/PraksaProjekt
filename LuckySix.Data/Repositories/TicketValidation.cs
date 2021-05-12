@@ -1,8 +1,6 @@
 ﻿using LuckySix.Core.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -51,7 +49,7 @@ namespace LuckySix.Data.Repositories
     public bool IsStringInFormat(string str)
     {
 
-      int counter = 0, counter1= 0;
+      int counter = 0, counter1 = 0;
 
       Regex rgx = new Regex(@"\D");
 
@@ -65,15 +63,15 @@ namespace LuckySix.Data.Repositories
       {
         if (str[i] == ',')
         {
-          if (Char.IsDigit(str[i - 1]) && Char.IsDigit(str[i+1]) )
+          if (Char.IsDigit(str[i - 1]) && Char.IsDigit(str[i + 1]))
           {
             counter++;
           }
-        
+
         }
       }
 
-      if(counter != 5 || counter1 !=5 )
+      if (counter != 5 || counter1 != 5)
       {
         return false;
       }
@@ -81,12 +79,7 @@ namespace LuckySix.Data.Repositories
       return true;
     }
 
-    public bool IsValidStake(decimal stake)
-    {
-      if (stake < 1 || stake > 100 || stake.Equals(null)) return false;
 
-      return true;
-
-    }
   }
 }
+

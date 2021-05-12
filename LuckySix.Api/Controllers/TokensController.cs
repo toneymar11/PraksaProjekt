@@ -1,20 +1,11 @@
 ﻿using AutoMapper;
-using FluentValidation.Results;
-using LuckySix.Api.Cookies;
 using LuckySix.Api.Models;
 using LuckySix.Api.Token;
-using LuckySix.Api.Validation;
 using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace LuckySix.Api.Controllers
@@ -50,12 +41,7 @@ namespace LuckySix.Api.Controllers
             await tokenRepository.SaveToken(loginUser.IdUser, token);
 
             //// SET COOKIES USER ID AND USER TOKEN
-            //Cookie cookieToken = CookieActions.SetCookie("session-id", token, 1);
-            //Response.Cookies.Append(cookieToken.Key, cookieToken.Value, cookieToken.Option);
-
-            //Cookie cookieUserId = CookieActions.SetCookie("user-id", loginUser.IdUser.ToString(), 1);
-            //Response.Cookies.Append(cookieUserId.Key, cookieUserId.Value, cookieUserId.Option);
-
+          
 
             HttpContext.Response.Headers["authorization"] = token.ToString();
             HttpContext.Response.Headers["userId"] = loginUser.IdUser.ToString();
