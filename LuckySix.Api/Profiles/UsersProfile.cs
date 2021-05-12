@@ -8,12 +8,13 @@ using System.Threading.Tasks;
 
 namespace LuckySix.Api.Profiles
 {
-  public class UsersProfile : Profile
-  {
-    public UsersProfile()
+    public class UsersProfile : Profile
     {
-      CreateMap<User, UserDto>();
+        public UsersProfile()
+        {
+            CreateMap<User, UserDto>();
+            CreateMap<UserLogin, User> ();
 
+        }
     }
-  }
 }
