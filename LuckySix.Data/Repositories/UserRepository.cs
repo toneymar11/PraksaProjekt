@@ -14,8 +14,11 @@ namespace LuckySix.Data.Repositories
 {
   public class UserRepository : Repository, IUserRepository
   {
+    #region ctor
     public UserRepository() : base() { }
+    #endregion
 
+    #region implementation
     public async Task<User> GetUser(int userId)
     {
       User user = null;
@@ -184,5 +187,7 @@ namespace LuckySix.Data.Repositories
 
       return true;
     }
+
+    #endregion
   }
 }

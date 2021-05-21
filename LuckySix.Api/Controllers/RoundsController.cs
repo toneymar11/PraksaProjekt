@@ -12,12 +12,15 @@ namespace LuckySix.Api.Controllers
   public class RoundsController : Controller
   {
 
+    #region ctor
     public RoundsController(IRoundRepository roundRepository, IMapper mapper) : base(roundRepository, mapper)
     {
 
     }
+    #endregion
 
 
+    #region implementation
     [HttpGet("{status}")]
     public async Task<IActionResult> GetRound([FromRoute] string status)
     {
@@ -51,6 +54,6 @@ namespace LuckySix.Api.Controllers
       return Ok();
     }
 
-
+    #endregion
   }
 }

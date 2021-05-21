@@ -5,6 +5,7 @@ namespace LuckySix.Core.Interfaces
 {
   public interface IRoundRepository
   {
+    
     Task<Round> GetReadyRound();
 
     Task<Round> GetRunningRound();

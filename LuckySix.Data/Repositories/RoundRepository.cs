@@ -8,8 +8,11 @@ namespace LuckySix.Data.Repositories
   public class RoundRepository : Repository, IRoundRepository
   {
 
+    #region ctor
     public RoundRepository() : base() {}
+    #endregion
 
+    #region implementation
     public async Task<Round> GetReadyRound()
     {
       Round round = null;
@@ -63,5 +66,7 @@ namespace LuckySix.Data.Repositories
 
       return round;
     }
+
+    #endregion
   }
 }

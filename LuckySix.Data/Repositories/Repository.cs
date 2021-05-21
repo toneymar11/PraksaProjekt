@@ -6,11 +6,15 @@ namespace LuckySix.Data.Repositories
 {
   public class Repository
   {
+    #region sqlFields
     public SqlConnection sql;
     public SqlCommand cmd;
     public SqlDataReader reader;
 
-    // PARAMETERS
+    #endregion
+
+    #region Parameters
+    
     public SqlParameter responseMessage;
     public SqlParameter idTicket;
     public SqlParameter selectedNumDrawn;
@@ -27,9 +31,10 @@ namespace LuckySix.Data.Repositories
     public SqlParameter stake;
     public SqlParameter NewId;
 
+    #endregion
 
 
-
+    #region ctor
     public Repository()
     {
       DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -37,6 +42,9 @@ namespace LuckySix.Data.Repositories
       
     }
 
+    #endregion
+
+    #region HelpMethods
     public SqlCommand CreateProcedure(string procedureName)
     {
       return new SqlCommand(procedureName, sql) { CommandType = CommandType.StoredProcedure };
@@ -73,6 +81,6 @@ namespace LuckySix.Data.Repositories
       return new SqlParameter(ParameterName, SqlDbType.Decimal) { Value = Value };
     }
 
-
+    #endregion
   }
 }

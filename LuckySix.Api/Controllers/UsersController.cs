@@ -12,15 +12,17 @@ namespace LuckySix.Api.Controllers
     [Route("api/[controller]")]
     public class UsersController : Controller
     {
-
-        public UsersController(IUserRepository userRepository, IMapper mapper, IUserValidation userValidation, ITokenRepository tokenRepository) : base(userRepository, mapper, userValidation, tokenRepository)
+    #region ctor
+    public UsersController(IUserRepository userRepository, IMapper mapper, IUserValidation userValidation, ITokenRepository tokenRepository) : base(userRepository, mapper, userValidation, tokenRepository)
         {
 
         }
+    #endregion
 
 
-        
-        [HttpGet("{userId}", Name = "GetUser")]
+
+    #region implementation
+    [HttpGet("{userId}", Name = "GetUser")]
         public async Task<IActionResult> GetUser([FromRoute] int userId)
         {
             if (!(await IsUserLogged())) return Unauthorized("You need to login");
@@ -126,5 +128,7 @@ namespace LuckySix.Api.Controllers
             Response.Headers.Add("Allow", "GET, OPTIONS, POST, PUT");
             return Ok();
         }
-    }
+
+    #endregion
+  }
 }

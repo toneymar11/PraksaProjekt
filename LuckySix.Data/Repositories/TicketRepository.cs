@@ -12,8 +12,14 @@ namespace LuckySix.Data.Repositories
 {
   public class TicketRepository : Repository, ITicketRepository
   {
-    public TicketRepository() : base() { }
 
+    #region ctor
+    public TicketRepository() : base() { }
+    #endregion
+
+
+
+    #region implementation
     public async Task<Ticket> CreateTicket(Ticket ticket)
     {
 
@@ -201,5 +207,7 @@ namespace LuckySix.Data.Repositories
 
       return tickets;
     }
+
+    #endregion
   }
 }

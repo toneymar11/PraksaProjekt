@@ -17,12 +17,17 @@ namespace LuckySix.Data.Repositories
 
     private readonly IUserValidation userValidation;
 
+
+    #region ctor
     public TokenRepository() : base()
     {
 
       userValidation = new UserValidation();
     }
+    #endregion
 
+
+    #region implementation
     public async Task<User> LogIn(User user)
     {
       //if (!userValidation.CheckLogin(user.Username, user.Password)) return null;
@@ -154,5 +159,7 @@ namespace LuckySix.Data.Repositories
 
       return true;
     }
+
+    #endregion
   }
 }

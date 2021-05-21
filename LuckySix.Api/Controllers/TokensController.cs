@@ -16,14 +16,16 @@ namespace LuckySix.Api.Controllers
 
     public class TokensController : Controller
     {
-
-        public TokensController(ITokenRepository tokenRepository, IMapper mapper, IConfiguration configuration) : base(tokenRepository, mapper, configuration)
+    #region ctor
+    public TokensController(ITokenRepository tokenRepository, IMapper mapper, IConfiguration configuration) : base(tokenRepository, mapper, configuration)
         {
 
         }
+    #endregion
 
-       
-        [HttpPost]
+
+    #region implementation
+    [HttpPost]
         public async Task<IActionResult> LoginUser([FromBody] UserLogin user)
         {
 
@@ -89,6 +91,6 @@ namespace LuckySix.Api.Controllers
             return Ok();
         }
 
-
-    }
+    #endregion
+  }
 }

@@ -15,12 +15,14 @@ namespace LuckySix.Api.Controllers
     [Route("api/[controller]")]
     public class TicketsController : Controller
     {
+    #region ctor
+    public TicketsController(ITicketRepository ticketRepository, IMapper mapper, ITicketValidation ticketValidation, ITokenRepository tokenRepository) : base(ticketRepository, mapper, ticketValidation, tokenRepository) { }
+    #endregion
 
-        public TicketsController(ITicketRepository ticketRepository, IMapper mapper, ITicketValidation ticketValidation, ITokenRepository tokenRepository) : base(ticketRepository, mapper, ticketValidation, tokenRepository) { }
 
 
-        
-        [HttpPost]
+    #region implementation
+    [HttpPost]
         public async Task<IActionResult> CreateTicket([FromBody] TicketPost ticket)
         {
             if (!(await IsUserLogged())) return Unauthorized("You need to login");
@@ -70,5 +72,7 @@ namespace LuckySix.Api.Controllers
             return Ok();
         }
 
-    }
+    #endregion
+
+  }
 }

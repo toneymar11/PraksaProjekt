@@ -11,11 +11,25 @@ namespace LuckySix.Api.Controllers
   [Route("api/[controller]")]
   public class RoundStatsController : ControllerBase
   {
-    private readonly IRoundStatsRepository roundStatsRepository;
 
+    public readonly IRoundStatsRepository roundStatsRepository;
+
+    #region ctor
     public RoundStatsController(IRoundStatsRepository roundStatsRepository)
     {
       this.roundStatsRepository = roundStatsRepository;
     }
+    #endregion
+
+    #region implementation
+    [HttpGet]
+    public async Task<IActionResult> GetRoundsStatistic()
+    {
+      var roundStats = await roundStatsRepository.GetRoundStats();
+      var sortedDict = from entry in roundStats.numbersCount orderby entry.Value descending select entry;
+
+      return Ok(sortedDict);
+    }
+    #endregion
   }
 }

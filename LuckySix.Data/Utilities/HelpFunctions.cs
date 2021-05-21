@@ -53,5 +53,17 @@ namespace LuckySix.Data.Utilities
 
       };
     }
+
+    public static Round MapToRoundForStats(SqlDataReader reader)
+    {
+      return new Round()
+
+      {
+        IdRound = (int)reader["id_round"],
+        DrawnNum = reader["drawn_num"].ToString(),
+       
+      };
+
+    }
   }
 }

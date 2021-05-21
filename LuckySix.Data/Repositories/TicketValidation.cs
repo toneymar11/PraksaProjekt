@@ -9,11 +9,15 @@ namespace LuckySix.Data.Repositories
   public class TicketValidation : ITicketValidation
   {
     private readonly IUserRepository userRepository;
+
+    #region ctor
     public TicketValidation()
     {
       userRepository = new UserRepository();
     }
+    #endregion
 
+    #region implementation
     public async Task<bool> IsPossibleBetting(decimal stake, int userId)
     {
       var user = await userRepository.GetUser(userId);
@@ -79,6 +83,7 @@ namespace LuckySix.Data.Repositories
       return true;
     }
 
+    #endregion
 
   }
 }
