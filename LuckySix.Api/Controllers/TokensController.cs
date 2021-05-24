@@ -10,86 +10,99 @@ using System.Threading.Tasks;
 
 namespace LuckySix.Api.Controllers
 {
-    
-    [ApiController]
-    [Route("api/[controller]")]
 
-    public class TokensController : Controller
-    {
+  [ApiController]
+  [Route("api/[controller]")]
+
+  public class TokensController : Controller
+  {
     #region ctor
     public TokensController(ITokenRepository tokenRepository, IMapper mapper, IConfiguration configuration) : base(tokenRepository, mapper, configuration)
-        {
+    {
 
-        }
+    }
     #endregion
 
 
     #region implementation
-    [HttpPost]
-        public async Task<IActionResult> LoginUser([FromBody] UserLogin user)
-        {
 
-            if (await IsUserLogged()) return BadRequest("You are already logged in");
-            var entityUser = mapper.Map<User>(user);
-            var loginUser = await tokenRepository.LogIn(entityUser);
+    [HttpGet]
+    public async Task<IActionResult> ChechIfUserLogged()
+    {
+      var user = await IsUserLoggedNow();
+      if(user == null)
+      {
+        return BadRequest("You need to login");
+      }
 
-            if (loginUser == null) return BadRequest("Invalid username or password, please try again");
+      return Ok(mapper.Map<UserDto>(user));
+    }
+    
+        [HttpPost]
+      public async Task<IActionResult> LoginUser([FromBody] UserLogin user)
+    {
+
+      if (await IsUserLogged()) return BadRequest("You are already logged in");
+      var entityUser = mapper.Map<User>(user);
+      var loginUser = await tokenRepository.LogIn(entityUser);
+
+      if (loginUser == null) return BadRequest("Invalid username or password, please try again");
 
 
-            string token = TokenActions.GenerateToken(loginUser, configuration);
-            Console.WriteLine(token);
+      string token = TokenActions.GenerateToken(loginUser, configuration);
+      Console.WriteLine(token);
 
-            loginUser.Token = token;
-            await tokenRepository.SaveToken(loginUser.IdUser, token);
+      loginUser.Token = token;
+      await tokenRepository.SaveToken(loginUser.IdUser, token);
 
-            //// SET COOKIES USER ID AND USER TOKEN
-          
+      //// SET COOKIES USER ID AND USER TOKEN
 
-            HttpContext.Response.Headers["authorization"] = token.ToString();
-            HttpContext.Response.Headers["userId"] = loginUser.IdUser.ToString();
 
-            var userLogin = mapper.Map<UserDto>(loginUser);
+      HttpContext.Response.Headers["authorization"] = token.ToString();
+      HttpContext.Response.Headers["userId"] = loginUser.IdUser.ToString();
 
-            return Ok(userLogin);
-        }
+      var userLogin = mapper.Map<UserDto>(loginUser);
 
-        
-        [HttpPut]
-        public async Task<IActionResult> Logout()
-        {
-            int userId = GetUserFromHeader();
-            string token = GetTokenFromHeader();
-            if (userId == 0 || token == "no")
-            {
-                return BadRequest("You are already logged out");
-            }
-            var isTokenValid = await tokenRepository.IsTokenValid(userId, token);
-            if (isTokenValid == null)
-            {
-                return BadRequest("You are already logged out");
-            }
+      return Ok(userLogin);
+    }
 
-            bool isLogOut = await tokenRepository.Logout(userId, token);
 
-            if (!isLogOut)
-            {
-                return BadRequest("You are already logged out");
-            }
-            // DELETE HEADERS
-            Response.Headers["authorization"] = "null";
-            Response.Headers["userid"] = "null";
+    [HttpPut]
+    public async Task<IActionResult> Logout()
+    {
+      int userId = GetUserFromHeader();
+      string token = GetTokenFromHeader();
+      if (userId == 0 || token == "no")
+      {
+        return BadRequest("You are already logged out");
+      }
+      var isTokenValid = await tokenRepository.IsTokenValid(userId, token);
+      if (isTokenValid == null)
+      {
+        return BadRequest("You are already logged out");
+      }
 
-            return Ok("You are logged out");
-        }
+      bool isLogOut = await tokenRepository.Logout(userId, token);
 
-        
-        [HttpOptions]
-        public IActionResult GetOptions()
-        {
-            Response.Headers.Add("Allow", "GET, OPTIONS, POST, PUT");
+      if (!isLogOut)
+      {
+        return BadRequest("You are already logged out");
+      }
+      // DELETE HEADERS
+      Response.Headers["authorization"] = "null";
+      Response.Headers["userid"] = "null";
 
-            return Ok();
-        }
+      return Ok("You are logged out");
+    }
+
+
+    [HttpOptions]
+    public IActionResult GetOptions()
+    {
+      Response.Headers.Add("Allow", "GET, OPTIONS, POST, PUT");
+
+      return Ok();
+    }
 
     #endregion
   }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -78,6 +79,22 @@ namespace LuckySix.Api.Controllers
       if (userValid == null) return false;
 
       return true;
+    }
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public async Task<User> IsUserLoggedNow()
+    {
+      int userId = GetUserFromHeader();
+      string token = GetTokenFromHeader();
+
+      if (userId == 0 || token == "no")
+      {
+        return null;
+      }
+
+      var userValid = await tokenRepository.IsTokenValid(userId, token);
+      if (userValid == null) return null;
+
+      return userValid;
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public int GetUserFromHeader()
