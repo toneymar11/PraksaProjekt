@@ -20,5 +20,7 @@ namespace LuckySix.Core.Entities
     public decimal Payout { get; set; }
 
     public byte Won { get; set; }
+
+    public string Status { get; set; }
   }
 }

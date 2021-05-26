@@ -197,7 +197,7 @@ namespace LuckySix.Data.Repositories
       var reader = await cmd.ExecuteReaderAsync();
       while (await reader.ReadAsync())
       {
-        tickets.Add(HelpFunctions.MaptoTicket(reader));
+        tickets.Add(HelpFunctions.MaptoTicketList(reader));
       }
 
       await sql.CloseAsync();

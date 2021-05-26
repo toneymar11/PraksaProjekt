@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 namespace LuckySix.Api.Controllers
 {
 
-    [ApiController]
-    [Route("api/[controller]")]
-    public class TicketsController : Controller
-    {
+  [ApiController]
+  [Route("api/[controller]")]
+  public class TicketsController : Controller
+  {
     #region ctor
     public TicketsController(ITicketRepository ticketRepository, IMapper mapper, ITicketValidation ticketValidation, ITokenRepository tokenRepository) : base(ticketRepository, mapper, ticketValidation, tokenRepository) { }
     #endregion
@@ -23,35 +23,35 @@ namespace LuckySix.Api.Controllers
 
     #region implementation
     [HttpPost]
-        public async Task<IActionResult> CreateTicket([FromBody] TicketPost ticket)
-        {
-            if (!(await IsUserLogged())) return Unauthorized("You need to login");
+    public async Task<IActionResult> CreateTicket([FromBody] TicketPost ticket)
+    {
+      if (!(await IsUserLogged())) return Unauthorized("You need to login");
 
-            ticket.SelectedNum = String.Concat(ticket.SelectedNum.Where(c => !Char.IsWhiteSpace(c)));
+      ticket.SelectedNum = String.Concat(ticket.SelectedNum.Where(c => !Char.IsWhiteSpace(c)));
 
-            if (!ticketValidation.IsValidSelectedNumbers(ticket.SelectedNum)) return BadRequest("Selected numbers are not valid");
-
-            
-
-            int userId = GetUserFromHeader();
-
-            var ticketEntity = mapper.Map<Ticket>(ticket);
-            if (!(await ticketValidation.IsPossibleBetting(ticket.Stake, userId))) return BadRequest("Insufficient Funds");
-
-            ticketEntity.IdUser = userId;
-            var newTicket = await ticketRepository.CreateTicket(ticketEntity);
-
-            if (newTicket == null) return BadRequest("Ticket is invalid");
-
-            ResponseHeaders();
-            return Ok(newTicket);
-        }
+      if (!ticketValidation.IsValidSelectedNumbers(ticket.SelectedNum)) return BadRequest("Selected numbers are not valid");
 
 
 
+      int userId = GetUserFromHeader();
 
-        
-        [HttpGet]
+      var ticketEntity = mapper.Map<Ticket>(ticket);
+      if (!(await ticketValidation.IsPossibleBetting(ticket.Stake, userId))) return BadRequest("Insufficient Funds");
+
+      ticketEntity.IdUser = userId;
+      var newTicket = await ticketRepository.CreateTicket(ticketEntity);
+
+      if (newTicket == null) return BadRequest("Ticket is invalid");
+
+      ResponseHeaders();
+      return Ok(newTicket);
+    }
+
+
+
+
+
+    [HttpGet]
         public async Task<IActionResult> GetTicketsRound()
         {
             if (!(await IsUserLogged())) return Unauthorized("You need to login");
