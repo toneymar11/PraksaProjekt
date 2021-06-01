@@ -9,7 +9,7 @@ namespace LuckySix.Core.Interfaces
   public interface IRoundStatsRepository
   {
 
-    Task<RoundStats> GetRoundStats();
+    Task<RoundStats> GetRoundStats(int nround);
 
     RoundStats CalculateNumbersCount(List<Round> rounds);
 

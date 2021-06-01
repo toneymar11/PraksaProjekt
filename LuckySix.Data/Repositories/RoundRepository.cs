@@ -67,6 +67,28 @@ namespace LuckySix.Data.Repositories
       return round;
     }
 
+    public async Task<Round> GetLastRound()
+    {
+      Round round = null;
+      cmd = CreateProcedure("GetLastRound");
+
+      await sql.OpenAsync();
+
+      
+
+      reader = await cmd.ExecuteReaderAsync();
+      while (await reader.ReadAsync())
+      {
+        round = HelpFunctions.MapToRound(reader);
+      }
+      await reader.CloseAsync();
+
+      await sql.CloseAsync();
+
+    
+      return round;
+    }
+
     #endregion
   }
 }

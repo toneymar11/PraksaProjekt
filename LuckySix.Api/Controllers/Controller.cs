@@ -64,6 +64,7 @@ namespace LuckySix.Api.Controllers
 
 
     #region helpFunctions
+
     [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<bool> IsUserLogged()
     {
@@ -80,7 +81,9 @@ namespace LuckySix.Api.Controllers
 
       return true;
     }
+
     [ApiExplorerSettings(IgnoreApi = true)]
+
     public async Task<User> IsUserLoggedNow()
     {
       int userId = GetUserFromHeader();
@@ -96,6 +99,7 @@ namespace LuckySix.Api.Controllers
 
       return userValid;
     }
+
     [ApiExplorerSettings(IgnoreApi = true)]
     public int GetUserFromHeader()
     {

@@ -37,7 +37,7 @@ namespace LuckySix.Data.Validation
 
     public bool IsValidBalance(decimal balance)
     {
-      return (balance >= 5 && balance <= 100);
+      return (balance >= 5 && balance <= 100) && !balance.Equals(null);
     }
   }
 }

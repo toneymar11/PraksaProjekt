@@ -25,52 +25,47 @@ namespace LuckySix.Api.Controllers
     [HttpPost]
     public async Task<IActionResult> CreateTicket([FromBody] TicketPost ticket)
     {
-      if (!(await IsUserLogged())) return Unauthorized("You need to login");
+      if (!(await IsUserLogged())) return Unauthorized(new ErrorMessage() { StatusCode = "401", ErrorText = "You need to login" });
 
       ticket.SelectedNum = String.Concat(ticket.SelectedNum.Where(c => !Char.IsWhiteSpace(c)));
 
-      if (!ticketValidation.IsValidSelectedNumbers(ticket.SelectedNum)) return BadRequest("Selected numbers are not valid");
+      if (!ticketValidation.IsValidSelectedNumbers(ticket.SelectedNum)) return BadRequest(new ErrorMessage() { StatusCode = "400", ErrorText = "Selected numbers are not valid" });
 
 
 
       int userId = GetUserFromHeader();
 
       var ticketEntity = mapper.Map<Ticket>(ticket);
-      if (!(await ticketValidation.IsPossibleBetting(ticket.Stake, userId))) return BadRequest("Insufficient Funds");
+      if (!(await ticketValidation.IsPossibleBetting(ticket.Stake, userId))) return BadRequest(new ErrorMessage() { StatusCode = "400", ErrorText = "Insufficient Funds" });
 
       ticketEntity.IdUser = userId;
       var newTicket = await ticketRepository.CreateTicket(ticketEntity);
 
-      if (newTicket == null) return BadRequest("Ticket is invalid");
+      if (newTicket == null) return BadRequest(new ErrorMessage() { StatusCode = "400", ErrorText = "Ticket is invalid" });
 
-      ResponseHeaders();
-      return Ok(newTicket);
+      return Ok(mapper.Map<TicketDto>(newTicket));
     }
 
 
-
-
-
     [HttpGet]
-        public async Task<IActionResult> GetTicketsRound()
-        {
-            if (!(await IsUserLogged())) return Unauthorized("You need to login");
+    public async Task<IActionResult> GetTicketsRound()
+    {
+      if (!(await IsUserLogged())) return Unauthorized(new ErrorMessage() { StatusCode = "400", ErrorText = "You need to login" });
 
-            var tickets = await ticketRepository.GetTicketsRound(GetUserFromHeader());
+      var tickets = await ticketRepository.GetTicketsRound(GetUserFromHeader());
 
-            if (tickets == null) return BadRequest("Tickets don't exist");
+      if (tickets == null) return NotFound(new ErrorMessage() { StatusCode = "404", ErrorText = "Tickets don't exist" });
 
-            ResponseHeaders();
-            return Ok(mapper.Map<IEnumerable<TicketsRound>>(tickets));
-        }
+      return Ok(mapper.Map<IEnumerable<TicketsRound>>(tickets));
+    }
 
-        
-        [HttpOptions]
-        public IActionResult GetOptions()
-        {
-            Response.Headers.Add("Allow", "GET, OPTIONS, POST, PUT");
-            return Ok();
-        }
+
+    [HttpOptions]
+    public IActionResult GetOptions()
+    {
+      Response.Headers.Add("Allow", "GET, OPTIONS, POST, PUT");
+      return Ok();
+    }
 
     #endregion
 

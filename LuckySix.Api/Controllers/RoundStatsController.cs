@@ -22,10 +22,10 @@ namespace LuckySix.Api.Controllers
     #endregion
 
     #region implementation
-    [HttpGet]
-    public async Task<IActionResult> GetRoundsStatistic()
+    [HttpGet("{nRound}")]
+    public async Task<IActionResult> GetRoundsStatistic([FromRoute] int nRound)
     {
-      var roundStats = await roundStatsRepository.GetRoundStats();
+      var roundStats = await roundStatsRepository.GetRoundStats(nRound);
       var sortedDict = from entry in roundStats.numbersCount orderby entry.Value descending select entry;
 
       return Ok(sortedDict);

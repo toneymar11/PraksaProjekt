@@ -11,7 +11,6 @@ namespace LuckySix.Api.Models
 
     public decimal Balance { get; set; }
 
-    public string DrawnNum { get; set; }
     public int IdRound { get; set; }
 
     public string SelectedNum { get; set; }

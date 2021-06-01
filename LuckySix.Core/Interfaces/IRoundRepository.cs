@@ -10,6 +10,7 @@ namespace LuckySix.Core.Interfaces
 
     Task<Round> GetRunningRound();
 
-    
+    Task<Round> GetLastRound();
+
   }
 }

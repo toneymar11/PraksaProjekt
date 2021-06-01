@@ -30,6 +30,7 @@ namespace LuckySix.Data.Repositories
     public SqlParameter selectedNum;
     public SqlParameter stake;
     public SqlParameter NewId;
+    public SqlParameter nRound;
 
     #endregion
 

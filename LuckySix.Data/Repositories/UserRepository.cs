@@ -174,7 +174,7 @@ namespace LuckySix.Data.Repositories
 
       // ADDING PARAMETERS
       cmd.Parameters.Add(Balance);
-      cmd.Parameters.Add(userId);
+      cmd.Parameters.Add(IdUser);
       cmd.Parameters.Add(responseMessage);
 
       await cmd.ExecuteNonQueryAsync();
