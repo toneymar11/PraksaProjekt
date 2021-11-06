@@ -1,15 +1,16 @@
 ﻿
-namespace LuckySix.Core.Entities
+
+namespace LuckySix.Api.Models
 {
-  public class Ticket
-  {
+  public class TicketsRound
+  { 
+
     public int IdTicket { get; set; }
 
     public int IdUser { get; set; }
 
     public decimal Balance { get; set; }
-    
-    public string DrawnNum { get; set; }
+
     public int IdRound { get; set; }
 
     public string SelectedNum { get; set; }

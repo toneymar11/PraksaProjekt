@@ -53,5 +53,33 @@ namespace LuckySix.Data.Utilities
 
       };
     }
+    public static Ticket MaptoTicketList(SqlDataReader reader)
+    {
+      return new Ticket()
+      {
+        IdTicket = (int)reader["id_ticket"],
+        IdUser = (int)reader["user_id"],
+        IdRound = (int)reader["round_id"],
+        SelectedNum = reader["selected_num"].ToString(),
+        SelectedNumDrawn = reader["selected_num_drawn"].ToString(),
+        Stake = (decimal)reader["stake"],
+        Payout = (decimal)reader["payout"],
+        Won = (byte)reader["won"],
+        Status = reader["status"].ToString()
+
+      };
+    }
+
+    public static Round MapToRoundForStats(SqlDataReader reader)
+    {
+      return new Round()
+
+      {
+        IdRound = (int)reader["id_round"],
+        DrawnNum = reader["drawn_num"].ToString(),
+       
+      };
+
+    }
   }
 }

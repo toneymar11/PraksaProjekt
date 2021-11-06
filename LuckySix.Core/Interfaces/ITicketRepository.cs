@@ -1,7 +1,6 @@
 ﻿using LuckySix.Core.Entities;
-using System;
+using LuckySix.Core.TicketCalculation;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace LuckySix.Core.Interfaces
@@ -11,6 +10,10 @@ namespace LuckySix.Core.Interfaces
     Task<Ticket> CreateTicket(Ticket ticket);
     Task<Ticket> GetTicket(int ticketId);
 
-    string IsUserWinTicket(string selectedNum, string DrawnNum);
+    TicketStatus IsUserWinTicket(string selectedNum, string DrawnNum);
+
+    Task<bool> UpdateTicket(Ticket ticket);
+
+    Task<IEnumerable<Ticket>> GetTicketsRound(int userId);
   }
 }

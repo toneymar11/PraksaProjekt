@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LuckySix.Api.Models;
 using LuckySix.Core.Entities;
 using LuckySix.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -9,87 +10,64 @@ using System.Threading.Tasks;
 
 namespace LuckySix.Api.Controllers
 {
+
   [ApiController]
   [Route("api/[controller]")]
-  public class TicketsController : ControllerBase
+  public class TicketsController : Controller
   {
-    private readonly ITicketRepository ticketRepository;
-    private readonly IMapper mapper;
-    private readonly ITicketValidation ticketValidation;
-    private readonly ITokenRepository tokenRepository;
+    #region ctor
+    public TicketsController(ITicketRepository ticketRepository, IMapper mapper, ITicketValidation ticketValidation, ITokenRepository tokenRepository) : base(ticketRepository, mapper, ticketValidation, tokenRepository) { }
+    #endregion
 
-    public TicketsController(ITicketRepository ticketRepository, IMapper mapper, ITicketValidation ticketValidation, ITokenRepository tokenRepository)
-    {
-      this.ticketRepository = ticketRepository;
-      this.mapper = mapper;
-      this.ticketValidation = ticketValidation;
-      this.tokenRepository = tokenRepository;
 
-    }
 
+    #region implementation
     [HttpPost]
-    public async Task<IActionResult> CreateTicket([FromBody] Ticket ticket)
+    public async Task<IActionResult> CreateTicket([FromBody] TicketPost ticket)
     {
-      if (!(await IsUserLogged())) return Unauthorized("You need to login");
+      if (!(await IsUserLogged())) return Unauthorized(new ErrorMessage() { StatusCode = "401", ErrorText = "You need to login" });
 
       ticket.SelectedNum = String.Concat(ticket.SelectedNum.Where(c => !Char.IsWhiteSpace(c)));
 
-      if (!ticketValidation.IsValidSelectedNumbers(ticket.SelectedNum)) return BadRequest("Selected numbers are not valid");
-
-      if (!ticketValidation.IsValidStake(ticket.Stake)) return BadRequest("You stake value is not valid");
-
-      int userId = GetUserFromCookie();
-
-      if (!( await ticketValidation.IsPossibleBetting(ticket.Stake, userId))) return BadRequest("Insufficient Funds");
-
-      ticket.IdUser = userId;
-      var newTicket = await ticketRepository.CreateTicket(ticket);
-
-      if (newTicket == null) return BadRequest("Ticket is invalid");
+      if (!ticketValidation.IsValidSelectedNumbers(ticket.SelectedNum)) return BadRequest(new ErrorMessage() { StatusCode = "400", ErrorText = "Selected numbers are not valid" });
 
 
-      return Ok(newTicket);
+
+      int userId = GetUserFromHeader();
+
+      var ticketEntity = mapper.Map<Ticket>(ticket);
+      if (!(await ticketValidation.IsPossibleBetting(ticket.Stake, userId))) return BadRequest(new ErrorMessage() { StatusCode = "400", ErrorText = "Insufficient Funds" });
+
+      ticketEntity.IdUser = userId;
+      var newTicket = await ticketRepository.CreateTicket(ticketEntity);
+
+      if (newTicket == null) return BadRequest(new ErrorMessage() { StatusCode = "400", ErrorText = "Ticket is invalid" });
+
+      return Ok(mapper.Map<TicketDto>(newTicket));
     }
 
 
-
-    // Cookies
-    public int GetUserFromCookie()
+    [HttpGet]
+    public async Task<IActionResult> GetTicketsRound()
     {
-      if (Request.Cookies["user-id"] == null)
-      {
-        return 0;
-      }
-      string cookie = Request.Cookies["user-id"];
-      int number = Int32.Parse(cookie);
+      if (!(await IsUserLogged())) return Unauthorized(new ErrorMessage() { StatusCode = "400", ErrorText = "You need to login" });
 
-      return number;
+      var tickets = await ticketRepository.GetTicketsRound(GetUserFromHeader());
+
+      if (tickets == null) return NotFound(new ErrorMessage() { StatusCode = "404", ErrorText = "Tickets don't exist" });
+
+      return Ok(mapper.Map<IEnumerable<TicketsRound>>(tickets));
     }
-    public string GetTokenFromCookie()
+
+
+    [HttpOptions]
+    public IActionResult GetOptions()
     {
-      if (Request.Cookies["session-id"] == null)
-      {
-        return "no";
-      }
-      return Request.Cookies["session-id"];
+      Response.Headers.Add("Allow", "GET, OPTIONS, POST, PUT");
+      return Ok();
     }
 
-    public async Task<bool> IsUserLogged()
-    {
-      int userId = GetUserFromCookie();
-      string token = GetTokenFromCookie();
-
-      if (userId == 0 || token == "no")
-      {
-        return false;
-      }
-
-      var userValid = await tokenRepository.IsTokenValid(userId, token);
-      if (userValid == null) return false;
-
-      return true;
-    }
-
+    #endregion
 
   }
 }

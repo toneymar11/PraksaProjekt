@@ -12,38 +12,30 @@ using System.Threading.Tasks;
 
 namespace LuckySix.Data.Repositories
 {
-  public class UserRepository : IUserRepository
+  public class UserRepository : Repository, IUserRepository
   {
+    #region ctor
+    public UserRepository() : base() { }
+    #endregion
 
-    public SqlConnection sql;
-
- 
-    public UserRepository()
-    {
-      DatabaseConnection databaseConnection = new DatabaseConnection();
-
-      sql = new SqlConnection(databaseConnection.connectionString);
-
-      
-    }
-
+    #region implementation
     public async Task<User> GetUser(int userId)
     {
       User user = null;
 
-      SqlCommand cmd = new SqlCommand("GetUser", sql) { CommandType = CommandType.StoredProcedure };
+      cmd = CreateProcedure("GetUser");
 
       await sql.OpenAsync();
 
       // INPUT PARAMETER
-      SqlParameter IdUser = new SqlParameter("@pIdUser", SqlDbType.Int) { Value = userId };
+      IdUser = IntegerParameter("@pIdUser", userId);
 
       // OUTPUT PARAMETER
-      SqlParameter ResponseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 250, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
       cmd.Parameters.Add(IdUser);
-      cmd.Parameters.Add(ResponseMessage);
+      cmd.Parameters.Add(responseMessage);
 
       var reader = await cmd.ExecuteReaderAsync();
       while (await reader.ReadAsync())
@@ -58,13 +50,14 @@ namespace LuckySix.Data.Repositories
 
     public async Task<bool> IsUserExists(string username)
     {
-      SqlCommand cmd = new SqlCommand("CheckUsername", sql) { CommandType = CommandType.StoredProcedure };
+      cmd = CreateProcedure("CheckUsername");
       await sql.OpenAsync();
-      //INPUT PARAMETER
-      SqlParameter Username = new SqlParameter("@pusername", SqlDbType.VarChar) { Value = username };
+
+      //INPUT PARAMETER 
+      Username = StringParameter("@pusername", username);
 
       // OUTPUT PARAMETER
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
       cmd.Parameters.Add(Username);
@@ -78,43 +71,45 @@ namespace LuckySix.Data.Repositories
 
     }
 
-  
+
     public async Task<User> RegisterUser(User user)
     {
 
       if (await IsUserExists(user.Username)) return null;
 
-      SqlCommand cmd = new SqlCommand("RegisterUser", sql) { CommandType = CommandType.StoredProcedure };
+      cmd = CreateProcedure("RegisterUser");
 
       User newUser = null;
 
       await sql.OpenAsync();
 
       // INPUT PARAMETERS
-      SqlParameter UserName = new SqlParameter("@pUserName", SqlDbType.VarChar) { Value = user.Username };
-      SqlParameter Password = new SqlParameter("@pPassword", SqlDbType.VarChar) { Value = user.Password };
-      SqlParameter FirstName = new SqlParameter("@pFirstName", SqlDbType.VarChar) { Value = user.FirstName };
-      SqlParameter LastName = new SqlParameter("@pLastName", SqlDbType.VarChar) { Value = user.LastName };
+
+      Username = StringParameter("@pUserName", user.Username);
+      Password = StringParameter("@pPassword", user.Password);
+      FirstName = StringParameter("@pFirstName", user.FirstName);
+      LastName = StringParameter("@pLastName", user.LastName);
 
 
       // OUTPUT PARAMETERS
-      SqlParameter NewId = new SqlParameter("@newId", SqlDbType.Int) { Direction = ParameterDirection.Output };
-      SqlParameter Balance = new SqlParameter("@balance", SqlDbType.Decimal) { Direction = ParameterDirection.Output };
-      SqlParameter ResponseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 250, Direction = ParameterDirection.Output };
+
+      NewId = IntegerOutput("@newId");
+      Balance = DecimalOutput("@balance");
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
-      cmd.Parameters.Add(UserName);
+      cmd.Parameters.Add(Username);
       cmd.Parameters.Add(Password);
       cmd.Parameters.Add(FirstName);
       cmd.Parameters.Add(LastName);
       cmd.Parameters.Add(NewId);
       cmd.Parameters.Add(Balance);
-      cmd.Parameters.Add(ResponseMessage);
+      cmd.Parameters.Add(responseMessage);
 
       await cmd.ExecuteNonQueryAsync();
 
       await sql.CloseAsync();
-      if (ResponseMessage.Value.ToString().Equals("Success"))
+      if (responseMessage.Value.ToString().Equals("Success"))
       {
 
         newUser = await GetUser((int)NewId.Value);
@@ -126,27 +121,29 @@ namespace LuckySix.Data.Repositories
     }
 
 
-    public async Task<User> UpdateUser(User user, int idUser)
+    public async Task<User> UpdateUser(User user, int userId)
     {
-      SqlCommand cmd = new SqlCommand("UpdateUserDetails", sql) { CommandType = CommandType.StoredProcedure };
+      cmd = CreateProcedure("UpdateUserDetails");
 
       await sql.OpenAsync();
       // INPUT PARAMETERS
-      SqlParameter userId = new SqlParameter("@piduser", SqlDbType.Int) { Value = idUser };
-      SqlParameter username = new SqlParameter("@pusername", SqlDbType.VarChar) { Value = user.Username };
-      SqlParameter password = new SqlParameter("@ppassword", SqlDbType.VarChar) { Value = user.Password };
-      SqlParameter firstname = new SqlParameter("@pfirstname", SqlDbType.VarChar) { Value = user.FirstName };
-      SqlParameter lastname = new SqlParameter("@plastname", SqlDbType.VarChar) { Value = user.LastName };
+
+      IdUser = IntegerParameter("@piduser", userId);
+      Username = StringParameter("@pusername", user.Username);
+      Password = StringParameter("@ppassword", user.Password);
+      FirstName = StringParameter("@pfirstname", user.FirstName);
+      LastName = StringParameter("@plastname", user.LastName);
+
 
       // OUTPUT PARAMETER
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
-      cmd.Parameters.Add(userId);
-      cmd.Parameters.Add(username);
-      cmd.Parameters.Add(password);
-      cmd.Parameters.Add(firstname);
-      cmd.Parameters.Add(lastname);
+      cmd.Parameters.Add(IdUser);
+      cmd.Parameters.Add(Username);
+      cmd.Parameters.Add(Password);
+      cmd.Parameters.Add(FirstName);
+      cmd.Parameters.Add(LastName);
       cmd.Parameters.Add(responseMessage);
 
       await cmd.ExecuteNonQueryAsync();
@@ -158,26 +155,26 @@ namespace LuckySix.Data.Repositories
         return null;
       }
 
-      return await GetUser(idUser);
+      return await GetUser(userId);
     }
 
-    public async Task<bool> MakeADeposit(decimal balance, int idUser)
+    public async Task<bool> MakeADeposit(decimal balance, int userId)
     {
-      
-      SqlCommand cmd = new SqlCommand("MakeADeposit", sql) { CommandType = CommandType.StoredProcedure };
+
+      cmd = CreateProcedure("MakeADeposit");
 
       await sql.OpenAsync();
 
       // INPUT PARAMETERS
-      SqlParameter userBalance = new SqlParameter("@pbalance", SqlDbType.Decimal) { Value = balance };
-      SqlParameter userId = new SqlParameter("@puserId", SqlDbType.Int) { Value = idUser };
+      Balance = DecimalParameter("@pbalance", balance);
+      IdUser = IntegerParameter("@puserId", userId); ;
 
       // OUTPUT PARAMETER
-      SqlParameter responseMessage = new SqlParameter("@responseMessage", SqlDbType.VarChar) { Size = 25, Direction = ParameterDirection.Output };
+      responseMessage = ResponseMessage();
 
       // ADDING PARAMETERS
-      cmd.Parameters.Add(userBalance);
-      cmd.Parameters.Add(userId);
+      cmd.Parameters.Add(Balance);
+      cmd.Parameters.Add(IdUser);
       cmd.Parameters.Add(responseMessage);
 
       await cmd.ExecuteNonQueryAsync();
@@ -190,5 +187,7 @@ namespace LuckySix.Data.Repositories
 
       return true;
     }
+
+    #endregion
   }
 }
