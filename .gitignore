@@ -4,6 +4,12 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignor
 
 
+
+## DATABASE
+
+DatabaseConnection.cs
+
+
 DatabaseConnection.cs
 # User-specific files
 *.rsuser
